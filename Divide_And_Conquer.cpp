@@ -1,5 +1,8 @@
 // A divide and conquer based C++ program to find skyline of given buildings 
 #include <iostream> 
+#include <fstream>
+#include <vector>
+
 using namespace std; 
   
 // A structure for building 
@@ -7,10 +10,10 @@ struct Building {
     // x coordinate of left side 
     int left; 
   
-    // x coordinate of righeight side 
-    int righeight;
+    // x coordinate of right side 
+    int right;
 
-    // heigheight 
+    // height 
     int height; 
 }; 
   
@@ -19,7 +22,7 @@ class Strip {
     // x coordinate of left side 
     int left; 
   
-    // heigheight 
+    // height 
     int height; 
   
 public: 
@@ -61,7 +64,7 @@ public:
     void append(Strip* st) 
     { 
         // Check for redundant strip, a strip is 
-        // redundant if it has same heigheight or left as previous 
+        // redundant if it has same height or left as previous 
         if (n > 0 && arr[n - 1].height == st->height) 
             return; 
         if (n > 0 && arr[n - 1].left == st->left) { 
@@ -85,20 +88,20 @@ public:
   
 // This function returns skyline for a given array of buildings arr[l..h]. 
 // This function is similar to mergeSort(). 
-SkyLine* findSkyline(Building arr[], int l, int h) 
+SkyLine* divideAndConquer(Building arr[], int l, int h) 
 { 
     if (l == h) { 
         SkyLine* res = new SkyLine(2); 
         res->append(new Strip(arr[l].left, arr[l].height)); 
-        res->append(new Strip(arr[l].righeight, 0)); 
+        res->append(new Strip(arr[l].right, 0)); 
         return res; 
     } 
   
     int mid = (l + h) / 2; 
   
-    // Recur for left and righeight halves and merge the two results 
-    SkyLine* sl = findSkyline(arr, l, mid); 
-    SkyLine* sr = findSkyline(arr, mid + 1, h); 
+    // Recur for left and right halves and merge the two results 
+    SkyLine* sl = divideAndConquer(arr, l, mid); 
+    SkyLine* sr = divideAndConquer(arr, mid + 1, h); 
     SkyLine* res = sl->Merge(sr); 
   
     // To avoid memory leak 
@@ -124,13 +127,12 @@ SkyLine* SkyLine::Merge(SkyLine* other)
     // Indexes of strips in two skylines 
     int i = 0, j = 0; 
     while (i < this->n && j < other->n) { 
-        // Compare x coordinates of left sides of two 
-        // skylines and put the smaller one in result 
+        // Compare x coordinates of left sides of two skylines and put the smaller one in result 
         if (this->arr[i].left < other->arr[j].left) { 
             int x1 = this->arr[i].left; 
             h1 = this->arr[i].height; 
   
-            // Choose heigheight as max of two heigheights 
+            // Choose height as max of two heigheights 
             int maxh = max(h1, h2); 
   
             res->append(new Strip(x1, maxh)); 
@@ -156,18 +158,81 @@ SkyLine* SkyLine::Merge(SkyLine* other)
     } 
     return res; 
 } 
-  
+
+static void showUsage(std::string name)
+{
+    std::cerr << "Usage: " << name << " -a {brute, recursif, seuil} -e CHEMIN_EXEMPLAIRE <option(s)> SOURCES"
+              << "Options:\n"
+              << "\t[-p] affiche, sur chaque ligne, les couples définissant la silhouette de bâtiments, triés selon l’abscisse et sans texte superflu (les deux valeurs d’un couple sont séparées d’un espace)\n"
+              << "\t[-t] affiche le temps d’exécution en millisecondes, sans unité ni texte superflu\n"
+              << std::endl;
+}
+
+std::pair<int, std::vector<Building>> readExempFile(std::string filePath)
+{
+    std::ifstream inputFileStream(filePath);
+    std::vector<Building> buildingArray;
+    std::string line;
+    bool isFirstLine = true;
+    int nbrBuildings = 0;
+    if(inputFileStream){
+        while (std::getline(inputFileStream, line)) {
+            if(isFirstLine) {
+                nbrBuildings = std::stoi(line);
+                cout << " n is :" << nbrBuildings << endl;
+                isFirstLine = false;
+            } else {
+                int right, left, height;
+                inputFileStream >> right >> left >> height;
+                Building building = {right, left, height};
+                buildingArray.push_back(building);
+            }
+        }
+        inputFileStream.close();
+    } else{
+        std::cerr << "Couldn't open " << filePath << " for reading\n";
+    }
+    return std::make_pair(nbrBuildings, buildingArray);
+}
+
 // Driver Function 
-int main() 
+int main(int argc, char* argv[]) 
 { 
-    Building arr[] = { 
-        { 1, 5, 11 }, { 2, 7, 6 }, { 3, 9, 13 }, { 12, 16, 7 }, { 14, 25, 3 }, { 19, 22, 18 }, { 23, 29, 13 }, { 24, 28, 4 } 
-    }; 
-    int n = sizeof(arr) / sizeof(arr[0]); 
-  
-    // Find skyline for given buildings and print the skyline 
-    SkyLine* ptr = findSkyline(arr, 0, n - 1); 
-    cout << " Skyline for given buildings is \n"; 
-    ptr->print(); 
+    if (argc < 5) {
+        showUsage(argv[0]);
+        return 1;
+    }
+    
+    std::string method;
+    std::string filePath;
+
+    for (int i = 1; i < argc; ++i) {
+        std::string arg = argv[i];
+        if (arg == "-a") {
+            method = argv[++i];
+        } else if (arg == "-e") {
+            filePath = argv[++i];
+        } else {
+            //implement -p and -t options if we have time
+        }
+    }
+
+    std::pair<int, std::vector<Building>> fileData = readExempFile(filePath);
+    int n = fileData.first;
+    Building arr[fileData.second.size()];
+    std::copy(fileData.second.begin(), fileData.second.end(), arr);
+
+    if(method == "recursif") {
+        // Find skyline for given buildings and print the skyline 
+        SkyLine* ptr = divideAndConquer(arr, 0, n - 1); 
+        cout << " Skyline for given buildings is \n"; 
+        ptr->print();
+    } else if (method == "brute"){
+        //call brute force algo 
+    } else if (method == "seuil"){
+        //call seuil algo
+    } else {
+        std::cerr << "Invalid algorithm type \n";
+    }
     return 0; 
 } 
