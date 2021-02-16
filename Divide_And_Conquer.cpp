@@ -2,6 +2,7 @@
 #include <iostream> 
 #include <fstream>
 #include <vector>
+#include <string>
 
 using namespace std; 
   
@@ -219,7 +220,7 @@ int main(int argc, char* argv[])
 
     std::pair<int, std::vector<Building>> fileData = readExempFile(filePath);
     int n = fileData.first;
-    Building arr[fileData.second.size()];
+    Building* arr = new Building [fileData.second.size()];
     std::copy(fileData.second.begin(), fileData.second.end(), arr);
 
     if(method == "recursif") {
