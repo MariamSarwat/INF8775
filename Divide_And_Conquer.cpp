@@ -88,7 +88,7 @@ public:
     void print()
     {
         for (int i = 0; i < n; i++) {
-            cout << " (" << arr[i].left << ", "
+            cout << "(" << arr[i].left << ", "
                 << arr[i].height << "), ";
         }
     }
@@ -192,8 +192,7 @@ void append(vector<StripBF>& skyline, StripBF& cur_strip)
     skyline.push_back(cur_strip);
 }
 
-vector<StripBF> mergeBruteForce(vector<StripBF>& skyline1,
-    vector<StripBF>& skyline2)
+vector<StripBF> mergeBruteForce(vector<StripBF>& skyline1, vector<StripBF>& skyline2)
 {
     vector<StripBF> result;
     int i = 0, j = 0;
@@ -286,9 +285,6 @@ vector<StripBF> bruteForce(Building arr[], int low, int high) {
     return result;
 }
 
-
-
-
 static void showUsage(std::string name)
 {
     std::cerr << "Usage: " << name << " -a {brute, recursif, seuil} -e CHEMIN_EXEMPLAIRE <option(s)> SOURCES"
@@ -305,29 +301,27 @@ std::pair<int, std::vector<Building>> readExempFile(std::string filePath)
     std::string line;
     bool isFirstLine = true;
     int nbrBuildings = 0;
+    int right, left, height;
     if (inputFileStream) {
         while (std::getline(inputFileStream, line)) {
             if (isFirstLine) {
                 nbrBuildings = std::stoi(line);
-                cout << " n is :" << nbrBuildings << endl;
+                cout << "n is : " << nbrBuildings << endl;
                 isFirstLine = false;
             }
-            else {
-                int right, left, height;
-                inputFileStream >> right >> left >> height;
-                Building building = { right, left, height };
-                buildingArray.push_back(building);
-            }
+            inputFileStream >> right >> left >> height;
+            Building building = { right, left, height };
+            buildingArray.push_back(building);
         }
         inputFileStream.close();
     }
     else {
         std::cerr << "Couldn't open " << filePath << " for reading\n";
+        return std::make_pair(0, buildingArray);
     }
     return std::make_pair(nbrBuildings, buildingArray);
 }
 
-// Driver Function 
 int main(int argc, char* argv[])
 {
     if (argc < 5) {
@@ -359,27 +353,23 @@ int main(int argc, char* argv[])
     if (method == "recursif") {
         // Find skyline for given buildings and print the skyline 
         SkyLine* ptr = divideAndConquer(arr, 0, n - 1);
-        cout << " Skyline for given buildings is \n";
+        cout << "Skyline for given buildings is \n";
         ptr->print();
     }
     else if (method == "brute") {
         //call brute force algo 
         vector<vector<StripBF>> result;
         
-         vector<StripBF> skyline= (bruteForce(arr, 0, n-1));
-         result.push_back(skyline);
-         cout << "Skyline for given buildings is" << endl;
-         
-         for (auto i: result) {
-             for (auto val : i) {
-                 cout << " (" << val.left << "," << val.height << ") ,";
-             }
-             cout << endl;
-         }
+        vector<StripBF> skyline= (bruteForce(arr, 0, n-1));
+        result.push_back(skyline);
+        cout << "Skyline for given buildings is \n";
         
-        
-        
-
+        for (auto i: result) {
+        for (auto val : i) {
+            cout << "(" << val.left << ", " << val.height << "), ";
+        }
+        cout << endl;
+        }
     }
     else if (method == "seuil") {
         //call seuil algo
