@@ -4,8 +4,12 @@
 #include <vector>
 #include <string>
 #include <algorithm>
+#include <ctime>
+#include <chrono>
 
 using namespace std;
+int init_time;
+int final_time;
 
 // A structure for building 
 struct Building {
@@ -88,7 +92,7 @@ public:
     void print()
     {
         for (int i = 0; i < n; i++) {
-            cout << "(" << arr[i].left << ", "
+            cout << " (" << arr[i].left << ", "
                 << arr[i].height << "), ";
         }
     }
@@ -192,7 +196,8 @@ void append(vector<StripBF>& skyline, StripBF& cur_strip)
     skyline.push_back(cur_strip);
 }
 
-vector<StripBF> mergeBruteForce(vector<StripBF>& skyline1, vector<StripBF>& skyline2)
+vector<StripBF> mergeBruteForce(vector<StripBF>& skyline1,
+    vector<StripBF>& skyline2)
 {
     vector<StripBF> result;
     int i = 0, j = 0;
@@ -282,8 +287,12 @@ vector<StripBF> bruteForce(Building arr[], int low, int high) {
 
     vector<StripBF> result = mergeBruteForce(skyline1, skyline2);
 
+
     return result;
 }
+
+
+
 
 static void showUsage(std::string name)
 {
@@ -301,27 +310,29 @@ std::pair<int, std::vector<Building>> readExempFile(std::string filePath)
     std::string line;
     bool isFirstLine = true;
     int nbrBuildings = 0;
-    int right, left, height;
     if (inputFileStream) {
         while (std::getline(inputFileStream, line)) {
             if (isFirstLine) {
                 nbrBuildings = std::stoi(line);
-                cout << "n is : " << nbrBuildings << endl;
+                cout << " n is :" << nbrBuildings << endl;
                 isFirstLine = false;
             }
-            inputFileStream >> right >> left >> height;
-            Building building = { right, left, height };
-            buildingArray.push_back(building);
+            else {
+                int right, left, height;
+                inputFileStream >> right >> left >> height;
+                Building building = { right, left, height };
+                buildingArray.push_back(building);
+            }
         }
         inputFileStream.close();
     }
     else {
         std::cerr << "Couldn't open " << filePath << " for reading\n";
-        return std::make_pair(0, buildingArray);
     }
     return std::make_pair(nbrBuildings, buildingArray);
 }
 
+// Driver Function 
 int main(int argc, char* argv[])
 {
     if (argc < 5) {
@@ -351,25 +362,41 @@ int main(int argc, char* argv[])
     std::copy(fileData.second.begin(), fileData.second.end(), arr);
 
     if (method == "recursif") {
-        // Find skyline for given buildings and print the skyline 
+        // Find skyline for given buildings and print the skyline
+        
+        auto start = std::chrono::high_resolution_clock::now();
         SkyLine* ptr = divideAndConquer(arr, 0, n - 1);
-        cout << "Skyline for given buildings is \n";
-        ptr->print();
+        auto finish = std::chrono::high_resolution_clock::now();
+        std::cout << std::chrono::duration_cast<std::chrono::nanoseconds>(finish - start).count() << "ns\n";
+        
+        cout << " Skyline for given buildings is \n";
+        //ptr->print();
+        cout << endl << "execution time:" << ((float)(final_time - init_time)) / (CLOCKS_PER_SEC * 10000000000000000000) << endl;
     }
     else if (method == "brute") {
         //call brute force algo 
         vector<vector<StripBF>> result;
         
-        vector<StripBF> skyline= (bruteForce(arr, 0, n-1));
-        result.push_back(skyline);
-        cout << "Skyline for given buildings is \n";
         
-        for (auto i: result) {
-        for (auto val : i) {
-            cout << "(" << val.left << ", " << val.height << "), ";
-        }
-        cout << endl;
-        }
+        auto start = std::chrono::high_resolution_clock::now();
+       
+         vector<StripBF> skyline= (bruteForce(arr, 0, n-1));
+         
+         auto finish = std::chrono::high_resolution_clock::now();
+         std::cout << std::chrono::duration_cast<std::chrono::nanoseconds>(finish - start).count() << "ns\n";
+         SkyLine* ptr = new SkyLine(skyline.size());
+         for (unsigned i = 0; i < skyline.size(); i++) {
+             ptr->append(new Strip(skyline[i].left, skyline[i].height));
+         }
+         //ptr->print();
+         
+         
+         
+         cout <<endl<< "execution time:" << ((float)(final_time - init_time))/(CLOCKS_PER_SEC*1000) << endl;
+        
+        
+        
+
     }
     else if (method == "seuil") {
         //call seuil algo
