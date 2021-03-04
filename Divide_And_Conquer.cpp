@@ -4,8 +4,12 @@
 #include <vector>
 #include <string>
 #include <algorithm>
+#include <ctime>
+#include <chrono>
 
 using namespace std;
+int init_time;
+int final_time;
 
 // A structure for building 
 struct Building {
@@ -88,7 +92,7 @@ public:
     void print()
     {
         for (int i = 0; i < n; i++) {
-            cout << "(" << arr[i].left << ", "
+            cout << " (" << arr[i].left << ", "
                 << arr[i].height << "), ";
         }
     }
@@ -192,7 +196,8 @@ void append(vector<StripBF>& skyline, StripBF& cur_strip)
     skyline.push_back(cur_strip);
 }
 
-vector<StripBF> mergeBruteForce(vector<StripBF>& skyline1, vector<StripBF>& skyline2)
+vector<StripBF> mergeBruteForce(vector<StripBF>& skyline1,
+    vector<StripBF>& skyline2)
 {
     vector<StripBF> result;
     int i = 0, j = 0;
@@ -279,10 +284,30 @@ vector<StripBF> bruteForce(Building arr[], int low, int high) {
 
     vector<StripBF> skyline1 = bruteForce(arr, low, mid);
     vector<StripBF> skyline2 = bruteForce(arr, mid + 1, high);
-
     vector<StripBF> result = mergeBruteForce(skyline1, skyline2);
 
     return result;
+}
+
+SkyLine* convertStripToSkyLine(vector<StripBF> strip){
+    SkyLine* skyline = new SkyLine(strip.size());
+    for (unsigned i = 0; i < strip.size(); i++) {
+        skyline->append(new Strip(strip[i].left, strip[i].height));
+    }
+    return skyline;
+}
+
+SkyLine* divideAndConquerSeuil(Building arr[], int l, int h)
+{
+    int n = sizeof(arr);
+    if(n < 500) {
+        vector<StripBF> result = bruteForce(arr, l, h);
+        SkyLine* skyline = convertStripToSkyLine(result);
+        return skyline;
+    }
+
+    SkyLine* skyline = divideAndConquer(arr, 0, n - 1);
+    return skyline;
 }
 
 static void showUsage(std::string name)
@@ -301,14 +326,15 @@ std::pair<int, std::vector<Building>> readExempFile(std::string filePath)
     std::string line;
     bool isFirstLine = true;
     int nbrBuildings = 0;
-    int right, left, height;
     if (inputFileStream) {
         while (std::getline(inputFileStream, line)) {
             if (isFirstLine) {
                 nbrBuildings = std::stoi(line);
-                cout << "n is : " << nbrBuildings << endl;
+                cout << " n is :" << nbrBuildings << endl;
                 isFirstLine = false;
             }
+           
+            int right, left, height;
             inputFileStream >> right >> left >> height;
             Building building = { right, left, height };
             buildingArray.push_back(building);
@@ -317,11 +343,11 @@ std::pair<int, std::vector<Building>> readExempFile(std::string filePath)
     }
     else {
         std::cerr << "Couldn't open " << filePath << " for reading\n";
-        return std::make_pair(0, buildingArray);
     }
     return std::make_pair(nbrBuildings, buildingArray);
 }
 
+// Driver Function 
 int main(int argc, char* argv[])
 {
     if (argc < 5) {
@@ -351,28 +377,31 @@ int main(int argc, char* argv[])
     std::copy(fileData.second.begin(), fileData.second.end(), arr);
 
     if (method == "recursif") {
-        // Find skyline for given buildings and print the skyline 
+        // Find skyline for given buildings and print the skyline
+        auto start = std::chrono::high_resolution_clock::now();
         SkyLine* ptr = divideAndConquer(arr, 0, n - 1);
-        cout << "Skyline for given buildings is \n";
         ptr->print();
+        auto finish = std::chrono::high_resolution_clock::now();
+        std::cout << std::chrono::duration_cast<std::chrono::nanoseconds>(finish - start).count() << "ns\n";
     }
     else if (method == "brute") {
         //call brute force algo 
         vector<vector<StripBF>> result;
         
+        auto start = std::chrono::high_resolution_clock::now();
         vector<StripBF> skyline= (bruteForce(arr, 0, n-1));
-        result.push_back(skyline);
-        cout << "Skyline for given buildings is \n";
-        
-        for (auto i: result) {
-        for (auto val : i) {
-            cout << "(" << val.left << ", " << val.height << "), ";
-        }
-        cout << endl;
-        }
+        SkyLine* ptr = convertStripToSkyLine(skyline);
+        ptr->print();
+        auto finish = std::chrono::high_resolution_clock::now();
+        std::cout << std::chrono::duration_cast<std::chrono::nanoseconds>(finish - start).count() << "ns\n";
     }
     else if (method == "seuil") {
         //call seuil algo
+        auto start = std::chrono::high_resolution_clock::now();
+        SkyLine* ptr = divideAndConquerSeuil(arr, 0, n - 1);
+        ptr->print();
+        auto finish = std::chrono::high_resolution_clock::now();
+        std::cout << std::chrono::duration_cast<std::chrono::nanoseconds>(finish - start).count() << "ns\n";
     }
     else {
         std::cerr << "Invalid algorithm type \n";
