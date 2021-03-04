@@ -300,7 +300,7 @@ SkyLine* convertStripToSkyLine(vector<StripBF> strip){
 SkyLine* divideAndConquerSeuil(Building arr[], int l, int h)
 {
     int n = sizeof(arr);
-    if(n < 500) {
+    if(n <= 750) {
         vector<StripBF> result = bruteForce(arr, l, h);
         SkyLine* skyline = convertStripToSkyLine(result);
         return skyline;
