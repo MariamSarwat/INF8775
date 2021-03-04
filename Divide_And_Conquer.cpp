@@ -40,11 +40,12 @@ public:
     friend class SkyLine;
 };
 
-class StripBF {
-public:
-    int left;
-    int height;
+struct Point {
+    int x, y;
+    Point(int paramx, int paramy) : x(paramx), y(paramy) {}
 };
+
+
 
 // Skyline: To represent Output(An array of strips) 
 class SkyLine {
@@ -171,128 +172,108 @@ SkyLine* SkyLine::Merge(SkyLine* other)
     return res;
 }
 
-void append(vector<StripBF>& skyline, StripBF& cur_strip)
+
+
+bool compare(Point i1, Point i2)
 {
-    int size = skyline.size();
-
-    /*If the current strip to be added and the last strip of the skyline have
-    the  same left position, then pick the max height of the two strips and
-    update the height of the last strip in the skyline and return*/
-    if (size && skyline[size - 1].left == cur_strip.left) {
-        skyline[size - 1].height = max(skyline[size - 1].height,
-            cur_strip.height);
-        return;
-    }
-
-    /*The current strip to be added has the same height as the last strip in
-    skyline. So no need to add the current strip since neighboring strips
-    in skyline should have unique heights. So simply return*/
-    if (size && skyline[size - 1].height == cur_strip.height)
-        return;
-
-    /*The current strip to be added starts at a different position and has a
-    different height than the last strip in the skyline. So add the current
-    strip to the skyline*/
-    skyline.push_back(cur_strip);
+    return (i1.x < i2.x);
 }
 
-vector<StripBF> mergeBruteForce(vector<StripBF>& skyline1,
-    vector<StripBF>& skyline2)
-{
-    vector<StripBF> result;
-    int i = 0, j = 0;
-    /*h1 keeps track of the current height in skyline1 and h2 keeps track of the
-    current height in skyline2 as we traverse the two skylines*/
-    int h1 = 0, h2 = 0;
-    StripBF cur_strip;
+int substract(int x, int y) {
+    int result = x - y;
+    return result;
 
-    while (i < skyline1.size() && j < skyline2.size()) {
-        /*Pick the strip which is leftmost in the two skylines*/
-        if (skyline1[i].left < skyline2[j].left) {
-            h1 = skyline1[i].height; /*update current height of skyline1*/
-
-            /*The height of the strip to be added to the result will have
-            the maximum of the current heights of the two skylines*/
-            cur_strip.left = skyline1[i].left;
-            cur_strip.height = max(h1, h2);
-
-            append(result, cur_strip);
-            ++i;
-        }
-        else if (skyline1[i].left == skyline2[j].left) {
-            h1 = skyline1[i].height; /*update current height of the skylines*/
-            h2 = skyline2[j].height;
-
-            /*The height of the strip to be added to the result will have
-            the maximum of the current heights of the two skylines*/
-            cur_strip.left = skyline1[i].left;
-            cur_strip.height = max(h1, h2);
-
-            append(result, cur_strip);
-            ++i;
-            ++j;
-        }
-        else {
-            h2 = skyline2[j].height; /*update current height of skyline2*/
-
-            /*The height of the strip to be added to the result will have
-            the maximum of the current heights of the two skylines*/
-            cur_strip.left = skyline2[j].left;
-            cur_strip.height = max(h1, h2);
-
-            append(result, cur_strip);
-            ++j;
-        }
-    }
-
-    /*Append the remaining strips in skyline1 to the result*/
-    while (i < skyline1.size()) {
-        append(result, skyline1[i]);
-        ++i;
-    }
-
-    /*Append the remaining strips in skyline2 to the result*/
-    while (j < skyline2.size()) {
-        append(result, skyline2[j]);
-        ++j;
-    }
-
+}
+int add(int x, int y) {
+    int result = x + y;
     return result;
 }
 
-vector<StripBF> bruteForce(Building arr[], int low, int high) {
-    if (low == high) {
-        /*We have reached a single building. Create the result skyline*/
-        vector<StripBF> result;
-        StripBF cur_strip;
-
-        /*Add the strip corresponding to left end of building to result*/
-        cur_strip.left = arr[low].left,
-        cur_strip.height = arr[low].height;
-        result.push_back(cur_strip);
-
-        /*Add the strip corresponding to right end of building to result.
-        For the right end of the building, the height will be 0*/
-        cur_strip.left = arr[low].right;
-        cur_strip.height = 0;
-        result.push_back(cur_strip);
-
-        /*Terminate the recursion and return the result skyline*/
-        return result;
+vector<Point> checkLinearity(vector<Point> points) {
+    for (unsigned int i = 0; i < points.size() - 1; i++) {
+        if (substract(points[i + 1].x, points[i].x) > 1) {
+            points.insert(points.begin() + i + 1, Point(add(points[i].x, 1), 0));
+        }
     }
-    int mid = (low + high) / 2;
-
-    vector<StripBF> skyline1 = bruteForce(arr, low, mid);
-    vector<StripBF> skyline2 = bruteForce(arr, mid + 1, high);
-
-    vector<StripBF> result = mergeBruteForce(skyline1, skyline2);
-
-
-    return result;
+    return points;
 }
 
 
 
+vector<Point> bruteForce(Building arr[], int n) {
+    std::vector<Point> points;
+    for (int i = 0; i < n; i++) {
+        int first_x = arr[i].left;
+        int last_x = arr[i].right;
+        for (int j = first_x; j < last_x + 1; j++) {
+            points.push_back(Point(j, arr[i].height));
+
+        }
+    }
+    std::sort(points.begin(), points.end(), compare);
+    std::vector<Point> currentPoint = { Point(0,0),Point(1,0) };
+    std::vector<Point> sortedPoints;
+    //find for same x max y value
+    for (unsigned int i = 0; i < points.size(); i++) {
+        if (points[i].x > currentPoint[0].x) {
+            sortedPoints.push_back(Point(currentPoint[0].x, currentPoint[0].y));
+            currentPoint[0].x = points[i].x;
+            currentPoint[0].y = points[i].y;
+        }
+        if (points[i].x == currentPoint[0].x) {
+            if (points[i].y > currentPoint[0].y) {
+                currentPoint[0].y = points[i].y;
+            }
+        }
+
+    }
+    sortedPoints.push_back(Point(points[points.size() - 1].x, 0));
+
+    //check linearity to have a (x,y) for all range of x
+    sortedPoints = checkLinearity(sortedPoints);
+
+    //find skyline
+    std::vector<Point> finalPoints;
+    for (unsigned int i = 0; i < sortedPoints.size() - 1; i++) {
+        if (currentPoint[1].y != sortedPoints[i].y) {
+            if (currentPoint[1].y > sortedPoints[i].y) {
+                finalPoints.push_back(Point(sortedPoints[i - 1].x, sortedPoints[i].y));
+                currentPoint[1].y = sortedPoints[i].y;
+            }
+            else {
+                finalPoints.push_back(Point(sortedPoints[i].x, sortedPoints[i].y));
+                currentPoint[1].y = sortedPoints[i].y;
+            }
+        }
+
+    }
+    finalPoints.push_back(Point(sortedPoints[sortedPoints.size() - 1].x, sortedPoints[sortedPoints.size() - 1].y));
+    return finalPoints;
+
+}
+
+
+
+SkyLine* convertStripToSkyLine(vector<Point> points) {
+    SkyLine* skyline = new SkyLine(points.size());
+    for (unsigned i = 0; i < points.size(); i++) {
+        skyline->append(new Strip(points[i].x, points[i].y));
+    }
+    return skyline;
+}
+
+SkyLine* divideAndConquerSeuil(Building arr[], int l, int h)
+{
+    int n = sizeof(arr);
+    if (n <= 20) {
+        vector<Point> result = bruteForce(arr, h);
+        SkyLine* skyline = convertStripToSkyLine(result);
+        return skyline;
+    }
+
+    SkyLine* skyline = divideAndConquer(arr, 0, n - 1);
+    return skyline;
+}
 
 static void showUsage(std::string name)
 {
@@ -317,12 +298,11 @@ std::pair<int, std::vector<Building>> readExempFile(std::string filePath)
                 cout << " n is :" << nbrBuildings << endl;
                 isFirstLine = false;
             }
-            else {
-                int right, left, height;
-                inputFileStream >> right >> left >> height;
-                Building building = { right, left, height };
-                buildingArray.push_back(building);
-            }
+
+            int right, left, height;
+            inputFileStream >> right >> left >> height;
+            Building building = { right, left, height };
+            buildingArray.push_back(building);
         }
         inputFileStream.close();
     }
@@ -363,43 +343,30 @@ int main(int argc, char* argv[])
 
     if (method == "recursif") {
         // Find skyline for given buildings and print the skyline
-        
         auto start = std::chrono::high_resolution_clock::now();
         SkyLine* ptr = divideAndConquer(arr, 0, n - 1);
+        ptr->print();
         auto finish = std::chrono::high_resolution_clock::now();
         std::cout << std::chrono::duration_cast<std::chrono::nanoseconds>(finish - start).count() << "ns\n";
-        
-        cout << " Skyline for given buildings is \n";
-        //ptr->print();
-        cout << endl << "execution time:" << ((float)(final_time - init_time)) / (CLOCKS_PER_SEC * 10000000000000000000) << endl;
     }
     else if (method == "brute") {
         //call brute force algo 
-        vector<vector<StripBF>> result;
-        
-        
-        auto start = std::chrono::high_resolution_clock::now();
-       
-         vector<StripBF> skyline= (bruteForce(arr, 0, n-1));
-         
-         auto finish = std::chrono::high_resolution_clock::now();
-         std::cout << std::chrono::duration_cast<std::chrono::nanoseconds>(finish - start).count() << "ns\n";
-         SkyLine* ptr = new SkyLine(skyline.size());
-         for (unsigned i = 0; i < skyline.size(); i++) {
-             ptr->append(new Strip(skyline[i].left, skyline[i].height));
-         }
-         //ptr->print();
-         
-         
-         
-         cout <<endl<< "execution time:" << ((float)(final_time - init_time))/(CLOCKS_PER_SEC*1000) << endl;
-        
-        
         
 
+        auto start = std::chrono::high_resolution_clock::now();
+        vector<Point> skyline = (bruteForce(arr, n - 1));
+        SkyLine* ptr = convertStripToSkyLine(skyline);
+        ptr->print();
+        auto finish = std::chrono::high_resolution_clock::now();
+        std::cout << std::chrono::duration_cast<std::chrono::nanoseconds>(finish - start).count() << "ns\n";
     }
     else if (method == "seuil") {
         //call seuil algo
+        auto start = std::chrono::high_resolution_clock::now();
+        SkyLine* ptr = divideAndConquerSeuil(arr, 0, n - 1);
+        ptr->print();
+        auto finish = std::chrono::high_resolution_clock::now();
+        std::cout << std::chrono::duration_cast<std::chrono::nanoseconds>(finish - start).count() << "ns\n";
     }
     else {
         std::cerr << "Invalid algorithm type \n";
