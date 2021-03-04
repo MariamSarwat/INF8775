@@ -351,20 +351,20 @@ int main(int argc, char* argv[])
         auto start = std::chrono::high_resolution_clock::now();
         ptr = divideAndConquer(arr, 0, n - 1);
         auto finish = std::chrono::high_resolution_clock::now();
-        executionTime = std::chrono::duration<double>(finish - start).count();  
+        executionTime = std::chrono::duration<double, std::milli>(finish - start).count();  
     } 
     else if (method == "brute") {
         auto start = std::chrono::high_resolution_clock::now();
         vector<Point> skyline = (bruteForce(arr, n - 1));
         ptr = convertStripToSkyLine(skyline);
         auto finish = std::chrono::high_resolution_clock::now();
-        executionTime = std::chrono::duration<double>(finish - start).count();    
+        executionTime = std::chrono::duration<double, std::milli>(finish - start).count();    
     } 
     else if (method == "seuil") {
         auto start = std::chrono::high_resolution_clock::now();
         ptr = divideAndConquerSeuil(arr, 0, n - 1);
         auto finish = std::chrono::high_resolution_clock::now();
-        executionTime = std::chrono::duration<double>(finish - start).count();
+        executionTime = std::chrono::duration<double, std::milli>(finish - start).count();
     } 
     else {
         std::cerr << "Algorithme de type invalide \n";
@@ -375,7 +375,7 @@ int main(int argc, char* argv[])
         ptr->print();
     }
     if (printTime) {
-        std::cout << executionTime << " ms\n";
+        std::cout << executionTime << "\n";
     }
     return 0;
 }
