@@ -270,9 +270,26 @@ SkyLine* divideAndConquerSeuil(Building arr[], int l, int h)
         SkyLine* skyline = convertStripToSkyLine(result);
         return skyline;
     }
+    if (l == h) {
+        SkyLine* res = new SkyLine(2);
+        res->append(new Strip(arr[l].left, arr[l].height));
+        res->append(new Strip(arr[l].right, 0));
+        return res;
+    }
 
-    SkyLine* skyline = divideAndConquer(arr, 0, h);
-    return skyline;
+    int mid = (l + h) / 2;
+
+    // Recur for left and right halves and merge the two results 
+    SkyLine* sl = divideAndConquerSeuil(arr, l, mid);
+    SkyLine* sr = divideAndConquerSeuil(arr, mid + 1, h);
+    SkyLine* res = sl->Merge(sr);
+
+    // To avoid memory leak 
+    delete sl;
+    delete sr;
+
+    // Return merged skyline 
+    return res;
 }
 // End Divide and Conquer with resursion threshold code.
 
