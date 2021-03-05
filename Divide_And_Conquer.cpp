@@ -264,12 +264,13 @@ SkyLine* convertStripToSkyLine(vector<Point> points)
 // Divide and Conquer with resursion threshold.
 SkyLine* divideAndConquerSeuil(Building arr[], int l, int h) 
 {
-    int n = h + 1;
-    if (n <= 20) {
+    //If smaller than recursion threshold, use brute force algorithme
+    if (h + 1 <= 20) {
         vector<Point> result = bruteForce(arr, h);
         SkyLine* skyline = convertStripToSkyLine(result);
         return skyline;
     }
+
     if (l == h) {
         SkyLine* res = new SkyLine(2);
         res->append(new Strip(arr[l].left, arr[l].height));
