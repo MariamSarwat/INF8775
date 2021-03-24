@@ -2,11 +2,14 @@
 #include <fstream>
 #include <vector>
 #include <string>
-#include <algorithm>
 #include <chrono>
 #include <math.h>
 
 using namespace std;
+
+string GLOUTON_CODE = "0";
+string PROGDYN_CODE = "1";
+string APPROX_CODE = "2";
 
 // A structure for x and y coordinates 
 struct Coord {
@@ -124,22 +127,10 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    std::string method;
-    std::string filePath;
-    bool printResult = false, printTime = false;
-
-    for (int i = 1; i < argc; ++i) {
-        std::string arg = argv[i];
-        if (arg == "-a") {
-            method = argv[++i];
-        } else if (arg == "-e") {
-            filePath = argv[++i];
-        } else if (arg == "-p") {
-            printResult = true;
-        } else if (arg == "-t") {
-            printTime = true;
-        }
-    }
+    std::string filePath = argv[1];
+    std::string method = argv[2];
+    bool printTime = (string(argv[3]) != "0");
+    bool printResult = (string(argv[4]) != "0");
 
     std::pair<int, std::vector<Coord>> fileData = readExempFile(filePath);
     int nbrCities = fileData.first;
@@ -147,29 +138,25 @@ int main(int argc, char* argv[])
 
     double executionTime;
 
-    if (method == "glouton") {
+    if (method == "glouton" || method == GLOUTON_CODE) {
         auto start = std::chrono::high_resolution_clock::now();
         //call algo
 	    greedyAlgo(cityArr);
         auto finish = std::chrono::high_resolution_clock::now();
         executionTime = std::chrono::duration<double, std::milli>(finish - start).count();  
     } 
-    else if (method == "progdyn") {
+    else if (method == "progdyn" || method == PROGDYN_CODE) {
         auto start = std::chrono::high_resolution_clock::now();
         //call algo
         auto finish = std::chrono::high_resolution_clock::now();
         executionTime = std::chrono::duration<double, std::milli>(finish - start).count();    
     } 
-    else if (method == "approx") {
+    else if (method == "approx" || method == APPROX_CODE) {
         auto start = std::chrono::high_resolution_clock::now();
         //call algo
         auto finish = std::chrono::high_resolution_clock::now();
         executionTime = std::chrono::duration<double, std::milli>(finish - start).count();
     } 
-    else {
-        std::cerr << "Algorithme de type invalide \n";
-        return 1;
-    }
 
     if (printResult) {
         //ptr->print();

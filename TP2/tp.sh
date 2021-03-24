@@ -56,7 +56,9 @@ while getopts "e:a:pt" o; do
     esac
 done
 
-./exec $INST $ALG $TIME $PRINT
+echo $TIME
+g++ TSP_main.cpp -o exec
+./exec "$INST" $ALG $TIME $PRINT
 #python3 main.py $INST $ALG $TIME $PRINT
 #java main.java $INST $ALG $TIME $PRINT
 #...
