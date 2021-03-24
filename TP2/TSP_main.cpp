@@ -4,6 +4,7 @@
 #include <string>
 #include <algorithm>
 #include <chrono>
+#include <math.h>
 
 using namespace std;
 
@@ -13,65 +14,66 @@ struct Coord {
     int y;
 };
 
+int findEuclDist (Coord initCoord, Coord finalCoord){
+    int x = pow(finalCoord.x - initCoord.x, 2);
+    int y = pow(finalCoord.y - initCoord.y, 2);
+    return sqrt(x + y);
+}
+
 #include <bits/stdc++.h>
 // Function to find the minimum cost path for all the paths
-void findMinRoute(vector<vector<int> > tsp)
+void greedyAlgo(std::vector<Coord> cityArr)
 {
-	int sum = 0;
+	int totMinDist = 0;
 	int counter = 0;
 	int j = 0, i = 0;
-	int min = INT_MAX;
+	int minDist = INT_MAX;
 	map<int, int> visitedRouteList;
 
 	// Starting from the 0th indexed city i.e., the first city
 	visitedRouteList[0] = 1;
-	int route[tsp.size()];
+	int route[cityArr.size()];
 
-	// Traverse the adjacency matrix tsp[][]
-	while (i < tsp.size() && j < tsp[i].size())
+	// Traverse the adjacency vector cityArr[]
+	while (i < cityArr.size())
 	{
-		// Corner of the Matrix
-		if (counter >= tsp[i].size() - 1) break;
+        // Visited all cities
+        if (counter >= cityArr.size() - 1)
+        {
+            break;
+        }
 
-		// If this path is unvisited then and if the cost is less then update the cost
-		if (j != i && (visitedRouteList[j] == 0))
-		{
-			if (tsp[i][j] < min)
+        if(j != i && visitedRouteList[j] == 0){
+            int euclDist = findEuclDist(cityArr[i], cityArr[j]);
+            if (euclDist < minDist)
 			{
-				min = tsp[i][j];
-				route[counter] = j + 1;
+				minDist = euclDist;
+				route[counter] = j;
 			}
-		}
-		j++;
+        } 
+        j++;
 
 		// Check all paths from the ith indexed city
-		if (j == tsp[i].size())
+		if (j == cityArr.size())
 		{
-			sum += min;
-			min = INT_MAX;
-			visitedRouteList[route[counter] - 1] = 1;
+			totMinDist += minDist;
+			minDist = INT_MAX;
+			visitedRouteList[route[counter]] = 1;
 			j = 0;
-			i = route[counter] - 1;
+			i = route[counter];
 			counter++;
 		}
 	}
 
 	// Update the ending city in array from city which was last visited
-	i = route[counter - 1] - 1;
+	i = route[counter - 1];
 
-	for (j = 0; j < tsp.size(); j++)
-	{
-		if ((i != j) && tsp[i][j] < min)
-		{
-			min = tsp[i][j];
-			route[counter] = j + 1;
-		}
-	}
-	sum += min;
+    int euclDist = findEuclDist(cityArr[0], cityArr[i]);
+    totMinDist += euclDist;
 
 	// Started from the node where we finished as well.
 	std::cout << ("Minimum Cost is : ");
-	std::cout << (sum) << std::endl;
+	std::cout << (totMinDist) << std::endl;
 }
 // This code is contributed by grand_master.
 
@@ -148,14 +150,7 @@ int main(int argc, char* argv[])
     if (method == "glouton") {
         auto start = std::chrono::high_resolution_clock::now();
         //call algo
-        // Input Matrix
-        vector<vector<int> > tsp = { { -1, 10, 15, 20 },
-                                    { 10, -1, 35, 25 },
-                                    { 15, 35, -1, 30 },
-                                    { 20, 25, 30, -1 } };
-
-        // Function Call
-	    findMinRoute(tsp);
+	    greedyAlgo(cityArr);
         auto finish = std::chrono::high_resolution_clock::now();
         executionTime = std::chrono::duration<double, std::milli>(finish - start).count();  
     } 
