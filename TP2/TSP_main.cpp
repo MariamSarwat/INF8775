@@ -36,20 +36,28 @@ void greedyAlgo(std::vector<Coord> cityArr)
 	// Starting from the 0th indexed city i.e., the first city
 	visitedRouteList[0] = 1;
 	int route[cityArr.size()];
+    route[counter] = 0;
+    counter++;
 
-	// Traverse the adjacency vector cityArr[]
-	while (i < cityArr.size())
+	// Traverse vector cityArr
+	while (i < cityArr.size() && j < cityArr.size())
 	{
-        // Visited all cities
-        if (counter >= cityArr.size() - 1)
+        // Visited all cities, close path (last node to first node)
+        // Update the ending city in array from city which was last visited
+        if (counter == cityArr.size() - 1) 
         {
+            i = route[counter - 1];
+            int euclDist = findEuclDist(cityArr[0], cityArr[i]);
+            totMinDist += euclDist;
+            route[counter] = 0;
+
             break;
         }
 
         if(j != i && visitedRouteList[j] == 0){
             int euclDist = findEuclDist(cityArr[i], cityArr[j]);
             if (euclDist < minDist)
-			{
+			{   
 				minDist = euclDist;
 				route[counter] = j;
 			}
@@ -68,22 +76,21 @@ void greedyAlgo(std::vector<Coord> cityArr)
 		}
 	}
 
-	// Update the ending city in array from city which was last visited
-	i = route[counter - 1];
-
-    int euclDist = findEuclDist(cityArr[0], cityArr[i]);
-    totMinDist += euclDist;
+    for(int k = 0; k < cityArr.size(); k++){
+        std::cout << route[k];
+        if(k != cityArr.size() - 1) std::cout << "->";
+        else std::cout << endl;
+    }
 
 	// Started from the node where we finished as well.
-	std::cout << ("Minimum Cost is : ");
-	std::cout << (totMinDist) << std::endl;
+	std::cout << "Minimum Cost is : " << (totMinDist) << std::endl;
 }
 // This code is contributed by grand_master.
 
 // Print help menu
 static void showUsage(std::string name) 
 {
-    std::cerr << "Usage: " << name << " -a -a {glouton, progdyn, approx} -e CHEMIN_EXEMPLAIRE [-p] [-t]"
+    std::cerr << "Usage: " << name << " -a {glouton, progdyn, approx} -e CHEMIN_EXEMPLAIRE [-p] [-t]"
         << "Parametre optionel :\n"
         << "\t[-p] affiche dans l’ordre, sur chaque ligne, les indices des villes à visiter en commençant par 0 et en finissant par 0, sans texte superflu. Rapportez le chemin tel que la deuxième ville visitée ait un indice inférieur à celui de l’avant dernière ville affichée.\n"
         << "\t[-t] affiche le temps d’exécution en millisecondes, sans unité ni texte superflu\n"
