@@ -16,6 +16,9 @@ struct Coord {
     int x;
     int y;
 };
+bool operator == (Coord point1, Coord point2) {
+    return (point1.x == point2.x) && (point1.y == point2.y);
+}
 
 int findEuclDist (Coord initCoord, Coord finalCoord){
     int x = pow(finalCoord.x - initCoord.x, 2);
@@ -80,6 +83,46 @@ void greedyAlgo(std::vector<Coord> cityArr)
 }
 // This code is contributed by grand_master.
 
+void approx(std::vector<Coord> cityArr) {
+    int totMinDist = 0;
+    int counter = 0;
+    
+    int minDist = INT_MAX;
+    Coord actualPoint = {};
+    Coord choosedPoint = {};
+    std::vector<Coord> visitedRouteList;
+    
+    actualPoint.x = cityArr[0].x;
+    actualPoint.y = cityArr[0].y;
+    
+    visitedRouteList.push_back(cityArr[0]);
+    cityArr.erase(cityArr.begin());
+
+    
+
+    while (cityArr.size()>0)
+    {
+        for (int i=0; i < cityArr.size(); i++) {
+            int distEucl = findEuclDist(actualPoint, cityArr[i]);
+            if (distEucl < minDist) {
+                minDist = distEucl;
+                choosedPoint.x = cityArr[i].x;
+                choosedPoint.y = cityArr[i].y;
+            }
+        }
+        totMinDist += minDist;
+        visitedRouteList.push_back(choosedPoint);
+        actualPoint.x = choosedPoint.x;
+        actualPoint.y = choosedPoint.y;
+       
+        cityArr.erase(find(cityArr.begin(),cityArr.end(),choosedPoint));
+        minDist = INT_MAX;
+        counter++;
+
+    }
+    
+   
+}
 // Print help menu
 static void showUsage(std::string name) 
 {
@@ -154,6 +197,7 @@ int main(int argc, char* argv[])
     else if (method == "approx" || method == APPROX_CODE) {
         auto start = std::chrono::high_resolution_clock::now();
         //call algo
+        approx(cityArr);
         auto finish = std::chrono::high_resolution_clock::now();
         executionTime = std::chrono::duration<double, std::milli>(finish - start).count();
     } 
