@@ -4,6 +4,7 @@
 #include <string>
 #include <chrono>
 #include <math.h>
+#include <map>
 
 using namespace std;
 
@@ -26,8 +27,8 @@ int findEuclDist (Coord initCoord, Coord finalCoord){
     return sqrt(x + y);
 }
 
-#include <bits/stdc++.h>
-// Function to find the minimum cost path for all the paths
+// Inspire de https://www.geeksforgeeks.org/travelling-salesman-problem-greedy-approach/?ref=rp
+// Function to find the minimum cost path using the greedy method
 void greedyAlgo(std::vector<Coord> cityArr)
 {
 	int totMinDist = 0;
@@ -39,20 +40,28 @@ void greedyAlgo(std::vector<Coord> cityArr)
 	// Starting from the 0th indexed city i.e., the first city
 	visitedRouteList[0] = 1;
 	int route[cityArr.size()];
+    route[counter] = 0;
+    counter++;
 
-	// Traverse the adjacency vector cityArr[]
-	while (i < cityArr.size())
+	// Traverse vector cityArr
+	while (i < cityArr.size() && j < cityArr.size())
 	{
-        // Visited all cities
-        if (counter >= cityArr.size() - 1)
+        // Visited all cities, close path (last node to first node)
+        // Update the ending city in array from city which was last visited
+        if (counter == cityArr.size() - 1) 
         {
+            i = route[counter - 1];
+            int euclDist = findEuclDist(cityArr[0], cityArr[i]);
+            totMinDist += euclDist;
+            route[counter] = 0;
+
             break;
         }
 
         if(j != i && visitedRouteList[j] == 0){
             int euclDist = findEuclDist(cityArr[i], cityArr[j]);
             if (euclDist < minDist)
-			{
+			{   
 				minDist = euclDist;
 				route[counter] = j;
 			}
@@ -71,17 +80,58 @@ void greedyAlgo(std::vector<Coord> cityArr)
 		}
 	}
 
-	// Update the ending city in array from city which was last visited
-	i = route[counter - 1];
-
-    int euclDist = findEuclDist(cityArr[0], cityArr[i]);
-    totMinDist += euclDist;
+    for(int k = 0; k < cityArr.size(); k++){
+        std::cout << route[k];
+        if(k != cityArr.size() - 1) std::cout << "->";
+        else std::cout << endl;
+    }
 
 	// Started from the node where we finished as well.
-	std::cout << ("Minimum Cost is : ");
-	std::cout << (totMinDist) << std::endl;
+	std::cout << "Minimum Cost is : " << (totMinDist) << std::endl;
 }
-// This code is contributed by grand_master.
+
+
+//https://gist.github.com/jgcoded/d7ecba7aa3e210419471
+std::vector<std::vector<int>> findDistMatrix(std::vector<Coord> cities){
+    std::vector<std::vector<int>> citiesMatrix(cities.size());
+    for(auto& neighbors : citiesMatrix)
+        neighbors = vector<int>((1 << cities.size()) - 1, INT_MAX);
+
+    for(int i = 0; i < cities.size(); i++){
+        for (int j = 0; j < cities.size(); j++){
+            if(i == j) {
+                citiesMatrix[i][j] = 0;
+            }
+            else {
+                int euclDist = findEuclDist(cities[i], cities[j]);
+                citiesMatrix[i][j] = euclDist;
+            }
+        }
+    }
+    return citiesMatrix;
+}
+
+int DPAlgo(const vector<vector<int>>& cities, int pos, int visited, vector<vector<int>>& state)
+{
+    if(visited == ((1 << cities.size()) - 1))
+        return cities[pos][0]; // return to starting city
+
+    if(state[pos][visited] != INT_MAX)
+        return state[pos][visited];
+
+    for(int i = 0; i < cities.size(); ++i)
+    {
+        // can't visit ourselves unless we're ending & skip if already visited
+        if(i == pos || (visited & (1 << i)))
+            continue;
+
+        int distance = cities[pos][i] + DPAlgo(cities, i, visited | (1 << i), state);
+        if(distance < state[pos][visited])
+            state[pos][visited] = distance;
+    }
+
+    return state[pos][visited];
+}
 
 void approx(std::vector<Coord> cityArr) {
     int totMinDist = 0;
@@ -126,7 +176,7 @@ void approx(std::vector<Coord> cityArr) {
 // Print help menu
 static void showUsage(std::string name) 
 {
-    std::cerr << "Usage: " << name << " -a -a {glouton, progdyn, approx} -e CHEMIN_EXEMPLAIRE [-p] [-t]"
+    std::cerr << "Usage: " << name << " -a {glouton, progdyn, approx} -e CHEMIN_EXEMPLAIRE [-p] [-t]"
         << "Parametre optionel :\n"
         << "\t[-p] affiche dans l’ordre, sur chaque ligne, les indices des villes à visiter en commençant par 0 et en finissant par 0, sans texte superflu. Rapportez le chemin tel que la deuxième ville visitée ait un indice inférieur à celui de l’avant dernière ville affichée.\n"
         << "\t[-t] affiche le temps d’exécution en millisecondes, sans unité ni texte superflu\n"
@@ -189,8 +239,21 @@ int main(int argc, char* argv[])
         executionTime = std::chrono::duration<double, std::milli>(finish - start).count();  
     } 
     else if (method == "progdyn" || method == PROGDYN_CODE) {
+        vector<vector<int>> citiesMatrix = findDistMatrix(cityArr);
+        /*for(int i = 0; i < nbrCities - 1; i++){
+            std::cout << "{";
+            for (int j = 0; j < nbrCities - 1; j++){
+                std::cout << citiesMatrix[i][j] << ", "; 
+            }
+            std::cout << "}, " << endl;
+        }*/
         auto start = std::chrono::high_resolution_clock::now();
         //call algo
+        vector<vector<int>> state(citiesMatrix.size());
+        for(auto& neighbors : state)
+            neighbors = vector<int>((1 << citiesMatrix.size()) - 1, INT_MAX);
+
+        cout << "minimum: " << DPAlgo(citiesMatrix, 0, 1, state) << endl;
         auto finish = std::chrono::high_resolution_clock::now();
         executionTime = std::chrono::duration<double, std::milli>(finish - start).count();    
     } 
