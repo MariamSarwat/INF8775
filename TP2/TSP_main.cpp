@@ -24,7 +24,7 @@ bool operator == (Coord point1, Coord point2) {
 int findEuclDist (Coord initCoord, Coord finalCoord){
     int x = pow(finalCoord.x - initCoord.x, 2);
     int y = pow(finalCoord.y - initCoord.y, 2);
-    return sqrt(x + y);
+    return (x + y);
 }
 
 // Inspire de https://www.geeksforgeeks.org/travelling-salesman-problem-greedy-approach/?ref=rp
@@ -86,12 +86,9 @@ void greedyAlgo(std::vector<Coord> cityArr)
         else std::cout << endl;
     }
 
-	// Started from the node where we finished as well.
 	std::cout << "Minimum Cost is : " << (totMinDist) << std::endl;
 }
 
-
-//https://gist.github.com/jgcoded/d7ecba7aa3e210419471
 std::vector<std::vector<int>> findDistMatrix(std::vector<Coord> cities){
     std::vector<std::vector<int>> citiesMatrix(cities.size());
     for(auto& neighbors : citiesMatrix)
@@ -111,6 +108,7 @@ std::vector<std::vector<int>> findDistMatrix(std::vector<Coord> cities){
     return citiesMatrix;
 }
 
+//https://gist.github.com/jgcoded/d7ecba7aa3e210419471
 int DPAlgo(const vector<vector<int>>& cities, int pos, int visited, vector<vector<int>>& state)
 {
     if(visited == ((1 << cities.size()) - 1))
@@ -139,16 +137,14 @@ void approx(std::vector<Coord> cityArr) {
     
     int minDist = INT_MAX;
     Coord actualPoint = {};
-    Coord choosedPoint = {};
+    Coord choosenPoint = {};
     std::vector<Coord> visitedRouteList;
     
     actualPoint.x = cityArr[0].x;
     actualPoint.y = cityArr[0].y;
     
     visitedRouteList.push_back(cityArr[0]);
-    cityArr.erase(cityArr.begin());
-
-    
+    cityArr.erase(cityArr.begin());   
 
     while (cityArr.size()>0)
     {
@@ -156,23 +152,21 @@ void approx(std::vector<Coord> cityArr) {
             int distEucl = findEuclDist(actualPoint, cityArr[i]);
             if (distEucl < minDist) {
                 minDist = distEucl;
-                choosedPoint.x = cityArr[i].x;
-                choosedPoint.y = cityArr[i].y;
+                choosenPoint.x = cityArr[i].x;
+                choosenPoint.y = cityArr[i].y;
             }
         }
         totMinDist += minDist;
-        visitedRouteList.push_back(choosedPoint);
-        actualPoint.x = choosedPoint.x;
-        actualPoint.y = choosedPoint.y;
+        visitedRouteList.push_back(choosenPoint);
+        actualPoint.x = choosenPoint.x;
+        actualPoint.y = choosenPoint.y;
        
-        cityArr.erase(find(cityArr.begin(),cityArr.end(),choosedPoint));
+        cityArr.erase(find(cityArr.begin(),cityArr.end(),choosenPoint));
         minDist = INT_MAX;
         counter++;
-
-    }
-    
-   
+    }  
 }
+
 // Print help menu
 static void showUsage(std::string name) 
 {
@@ -240,13 +234,6 @@ int main(int argc, char* argv[])
     } 
     else if (method == "progdyn" || method == PROGDYN_CODE) {
         vector<vector<int>> citiesMatrix = findDistMatrix(cityArr);
-        /*for(int i = 0; i < nbrCities - 1; i++){
-            std::cout << "{";
-            for (int j = 0; j < nbrCities - 1; j++){
-                std::cout << citiesMatrix[i][j] << ", "; 
-            }
-            std::cout << "}, " << endl;
-        }*/
         auto start = std::chrono::high_resolution_clock::now();
         //call algo
         vector<vector<int>> state(citiesMatrix.size());
