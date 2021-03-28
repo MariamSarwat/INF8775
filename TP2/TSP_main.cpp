@@ -105,7 +105,6 @@ std::vector<std::vector<int>> findDistMatrix(std::vector<Coord> cities){
     return citiesMatrix;
 }
 
-//vector<vector<int>> state;
 //https://gist.github.com/jgcoded/d7ecba7aa3e210419471
 int DPAlgo(int pos, int visited, const vector<vector<int>>& citiesMatrix, vector<vector<int>>& state)
 {
@@ -128,6 +127,29 @@ int DPAlgo(int pos, int visited, const vector<vector<int>>& citiesMatrix, vector
         }
     }
     return state[pos][visited];
+}
+
+//https://stackoverflow.com/questions/61869112/travelling-salesman-problem-in-dynamic-programming
+void path(int mask, int pos, const vector<vector<int>>& citiesMatrix, const vector<vector<int>>& state){
+    if(mask == ((1 << citiesMatrix.size()) - 1)) {
+        return;
+    }
+    
+    int ans = INT_MAX, chosenCity = pos;
+
+    for(int city = 0; city < citiesMatrix.size(); ++city)
+    {
+        if(city == pos || (mask & (1 << city))>0){
+            continue;
+        }
+        int newAns = citiesMatrix[pos][city] + state[city][mask];
+        if(newAns < ans){
+            ans = newAns;
+            chosenCity = city;
+        }
+    }
+    printf("%d ", chosenCity); // here you get the current city you need to visit
+    path(mask | (1 << chosenCity), chosenCity, citiesMatrix, state);
 }
 
 //https://www.geeksforgeeks.org/travelling-salesman-problem-set-2-approximate-using-mst/?fbclid=IwAR1mcT7xs8ARV-fgmI7uAbIRTN1buN6i2ANK2HKPoEn3f6zvjG9Tkc-otgA
@@ -209,29 +231,6 @@ std::pair<int, std::vector<Coord>> readExempFile(std::string filePath)
     return std::make_pair(nbrCities, cityArr);
 }
 
-// //https://stackoverflow.com/questions/61869112/travelling-salesman-problem-in-dynamic-programming
-void path(int mask, int pos, const vector<vector<int>>& citiesMatrix, const vector<vector<int>>& state){
-    if(mask == ((1 << citiesMatrix.size()) - 1)) {
-        return;
-    }
-    
-    int ans = INT_MAX, chosenCity = pos;
-
-    for(int city = 0; city < citiesMatrix.size(); ++city)
-    {
-        if(city == pos || (mask & (1 << city))>0){
-            continue;
-        }
-        int newAns = citiesMatrix[pos][city] + state[city][mask];
-        if(newAns < ans){
-            ans = newAns;
-            chosenCity = city;
-        }
-    }
-    printf("%d ", chosenCity); // here you get the current city you need to visit
-    path(mask | (1 << chosenCity), chosenCity, citiesMatrix, state);
-}
-
 // Main function
 int main(int argc, char* argv[]) 
 {
@@ -252,13 +251,13 @@ int main(int argc, char* argv[])
     if(nbrCities == 0) return 1;
 
     double executionTime;
+    std::chrono::high_resolution_clock::time_point start, finish;
 
     if (method == "glouton" || method == GLOUTON_CODE) {
         int shortestPath[cityArr.size()];
-        auto start = std::chrono::high_resolution_clock::now();
+        start = std::chrono::high_resolution_clock::now();
 	    int *result = greedyAlgo(cityArr, shortestPath);
-        auto finish = std::chrono::high_resolution_clock::now();
-        executionTime = std::chrono::duration<double, std::milli>(finish - start).count();  
+        finish = std::chrono::high_resolution_clock::now();
         for(int k = 0; k < nbrCities; k++){
             std::cout << result[k];
             if(k != nbrCities - 1) std::cout << "->";
@@ -271,25 +270,23 @@ int main(int argc, char* argv[])
         for(auto& neighbors : state)
             neighbors = vector<int>((1 << citiesMatrix.size()) - 1, INT_MAX);
         
-        auto start = std::chrono::high_resolution_clock::now();
+        start = std::chrono::high_resolution_clock::now();
         cout << "minimum: " << DPAlgo(0, 1, citiesMatrix, state) << endl;
-        auto finish = std::chrono::high_resolution_clock::now();
-        executionTime = std::chrono::duration<double, std::milli>(finish - start).count(); 
+        finish = std::chrono::high_resolution_clock::now();
         path(1, 0, citiesMatrix, state);
         std::cout << endl;
     } 
     else if (method == "approx" || method == APPROX_CODE) {
-        auto start = std::chrono::high_resolution_clock::now();
-        //call algo
+        start = std::chrono::high_resolution_clock::now();
         approx(cityArr);
-        auto finish = std::chrono::high_resolution_clock::now();
-        executionTime = std::chrono::duration<double, std::milli>(finish - start).count();
+        finish = std::chrono::high_resolution_clock::now();
     } 
 
     if (printResult) {
         //ptr->print();
     }
     if (printTime) {
+        executionTime = std::chrono::duration<double, std::milli>(finish - start).count();  
         std::cout << executionTime << "\n";
     }
     return 0;
