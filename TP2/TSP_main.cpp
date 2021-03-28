@@ -191,8 +191,6 @@ std::pair<int, std::vector<Coord>> readExempFile(std::string filePath)
 
     if (inputFileStream) {
         while (std::getline(inputFileStream, line)) {
-            //std::cout << line << endl;
-
             if (isFirstLine) {
                 nbrCities = std::stoi(line);
                 isFirstLine = false;
@@ -200,13 +198,13 @@ std::pair<int, std::vector<Coord>> readExempFile(std::string filePath)
             int x = -1 , y = -1;
             inputFileStream >> x >> y;
             Coord coordinates = { x, y };
-            //std::cout << x << " " << y << endl;
             if(x == -1 || y == -1) break;
             cityArr.push_back(coordinates);
         }
         inputFileStream.close();
     } else {
         std::cerr << "Ne peux pas ouvrir le fichier specifie " << filePath << "\n";
+        return std::make_pair(0, cityArr);
     }
     return std::make_pair(nbrCities, cityArr);
 }
@@ -250,6 +248,8 @@ int main(int argc, char* argv[])
     std::pair<int, std::vector<Coord>> fileData = readExempFile(filePath);
     int nbrCities = fileData.first;
     std::vector<Coord> cityArr = fileData.second;
+
+    if(nbrCities == 0) return 1;
 
     double executionTime;
 
