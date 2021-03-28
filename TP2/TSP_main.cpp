@@ -88,7 +88,7 @@ int* greedyAlgo(std::vector<Coord> cityArr, int * route)
 std::vector<std::vector<int>> findDistMatrix(std::vector<Coord> cities){
     std::vector<std::vector<int>> citiesMatrix(cities.size());
     for(auto& neighbors : citiesMatrix)
-        neighbors = vector<int>((1 << cities.size()) - 1, INT_MAX);
+         neighbors = vector<int>((1 << cities.size()) - 1, INT_MAX);
 
     for(int i = 0; i < cities.size(); i++){
         for (int j = 0; j < cities.size(); j++){
@@ -101,26 +101,28 @@ std::vector<std::vector<int>> findDistMatrix(std::vector<Coord> cities){
             }
         }
     }
+
     return citiesMatrix;
 }
 
-vector<vector<int>> state;
+//vector<vector<int>> state;
 //https://gist.github.com/jgcoded/d7ecba7aa3e210419471
-int DPAlgo(int pos, int visited, const vector<vector<int>>& citiesMatrix)
+int DPAlgo(int pos, int visited, const vector<vector<int>>& citiesMatrix, vector<vector<int>>& state)
 {
-    if(visited == ((1 << citiesMatrix.size()) - 1))
+    if(visited == ((1 << citiesMatrix.size())) - 1)
         return citiesMatrix[pos][0]; // return to starting city
 
     if(state[pos][visited] != INT_MAX)
         return state[pos][visited];
     
-    for(int i = 0; i < citiesMatrix.size(); ++i)
+    for(int i = 0; i < citiesMatrix.size(); i++)
     {
         // can't visit ourselves unless we're ending & skip if already visited
-        if(i == pos || (visited & (1 << i)))
+        if(i == pos || (visited & (1 << i))){
             continue;
+        }
+        int distance = citiesMatrix[pos][i] + DPAlgo(i, visited | (1 << i), citiesMatrix, state);
 
-        int distance = citiesMatrix[pos][i] + DPAlgo(i, visited | (1 << i), citiesMatrix);
         if(distance < state[pos][visited]) {
             state[pos][visited] = distance;
         }
@@ -166,7 +168,7 @@ void approx(std::vector<Coord> cityArr) {
     }  
     std::cout << "Min cost " << totMinDist << endl;
 }
-
+ 
 // Print help menu
 static void showUsage(std::string name) 
 {
@@ -189,14 +191,17 @@ std::pair<int, std::vector<Coord>> readExempFile(std::string filePath)
 
     if (inputFileStream) {
         while (std::getline(inputFileStream, line)) {
+            //std::cout << line << endl;
+
             if (isFirstLine) {
                 nbrCities = std::stoi(line);
                 isFirstLine = false;
-            }
-
-            int x, y;
+            }      
+            int x = -1 , y = -1;
             inputFileStream >> x >> y;
             Coord coordinates = { x, y };
+            //std::cout << x << " " << y << endl;
+            if(x == -1 || y == -1) break;
             cityArr.push_back(coordinates);
         }
         inputFileStream.close();
@@ -206,28 +211,27 @@ std::pair<int, std::vector<Coord>> readExempFile(std::string filePath)
     return std::make_pair(nbrCities, cityArr);
 }
 
-//https://stackoverflow.com/questions/61869112/travelling-salesman-problem-in-dynamic-programming
-void  path(int mask, int pos, const vector<vector<int>>& citiesMatrix, int nbrCities){
-    if(mask == ((1 << nbrCities) - 1)) {
+// //https://stackoverflow.com/questions/61869112/travelling-salesman-problem-in-dynamic-programming
+void path(int mask, int pos, const vector<vector<int>>& citiesMatrix, const vector<vector<int>>& state){
+    if(mask == ((1 << citiesMatrix.size()) - 1)) {
         return;
     }
-
+    
     int ans = INT_MAX, chosenCity = pos;
 
-    for(int city = 0; city < nbrCities; city++)
+    for(int city = 0; city < citiesMatrix.size(); ++city)
     {
-        if(city == pos || (mask & (1 << city))){
+        if(city == pos || (mask & (1 << city))>0){
             continue;
         }
-
-        int newAns = citiesMatrix[pos][city] + state[mask | (1 << city)][city];
+        int newAns = citiesMatrix[pos][city] + state[city][mask];
         if(newAns < ans){
             ans = newAns;
             chosenCity = city;
         }
     }
     printf("%d ", chosenCity); // here you get the current city you need to visit
-    path(mask | (1 << chosenCity), chosenCity, citiesMatrix, nbrCities);
+    path(mask | (1 << chosenCity), chosenCity, citiesMatrix, state);
 }
 
 // Main function
@@ -250,33 +254,29 @@ int main(int argc, char* argv[])
     double executionTime;
 
     if (method == "glouton" || method == GLOUTON_CODE) {
-        auto start = std::chrono::high_resolution_clock::now();
-        //call algo
         int shortestPath[cityArr.size()];
+        auto start = std::chrono::high_resolution_clock::now();
 	    int *result = greedyAlgo(cityArr, shortestPath);
-
+        auto finish = std::chrono::high_resolution_clock::now();
+        executionTime = std::chrono::duration<double, std::milli>(finish - start).count();  
         for(int k = 0; k < nbrCities; k++){
             std::cout << result[k];
             if(k != nbrCities - 1) std::cout << "->";
             else std::cout << endl;
         }
-
-        auto finish = std::chrono::high_resolution_clock::now();
-        executionTime = std::chrono::duration<double, std::milli>(finish - start).count();  
     } 
     else if (method == "progdyn" || method == PROGDYN_CODE) {
         vector<vector<int>> citiesMatrix = findDistMatrix(cityArr);
+        vector<vector<int>> state(citiesMatrix.size());
+        for(auto& neighbors : state)
+            neighbors = vector<int>((1 << citiesMatrix.size()) - 1, INT_MAX);
+        
         auto start = std::chrono::high_resolution_clock::now();
-        //call algo
-        //https://github.com/DylanWeeks2/Travelling-salesman-problem-Brute-Force-vs-Dynamic-Programming-/blob/master/src/tspDynamicProgramming.cpp
-        state = vector< vector< int > >(1 << nbrCities, vector< int >( nbrCities, INT_MAX ) );
-        //for(auto& neighbors : state)
-          //  neighbors = vector<int>((1 << citiesMatrix.size()) - 1, INT_MAX);
-
-        cout << "minimum: " << DPAlgo(0, 1, citiesMatrix) << endl;
-        path(1, 0, citiesMatrix, nbrCities);
+        cout << "minimum: " << DPAlgo(0, 1, citiesMatrix, state) << endl;
         auto finish = std::chrono::high_resolution_clock::now();
-        executionTime = std::chrono::duration<double, std::milli>(finish - start).count();    
+        executionTime = std::chrono::duration<double, std::milli>(finish - start).count(); 
+        path(1, 0, citiesMatrix, state);
+        std::cout << endl;
     } 
     else if (method == "approx" || method == APPROX_CODE) {
         auto start = std::chrono::high_resolution_clock::now();
