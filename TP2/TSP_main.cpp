@@ -50,12 +50,12 @@ int* greedyAlgo(std::vector<Coord> cityArr, int * route)
 	{
         // Visited all cities, close path (last node to first node)
         // Update the ending city in array from city which was last visited
-        if (counter == cityArr.size() - 1) 
-        {
+        if (counter == cityArr.size()) 
+        {   
             i = route[counter - 1];
             int euclDist = findEuclDist(cityArr[0], cityArr[i]);
             totMinDist += euclDist;
-            route[counter] = 0;
+            //route[counter] = 0;
 
             break;
         }
@@ -65,9 +65,9 @@ int* greedyAlgo(std::vector<Coord> cityArr, int * route)
             if (euclDist < minDist)
 			{   
 				minDist = euclDist;
-				route[counter] = j;
+				route[counter] = j ;
 			}
-        } 
+        }
         j++;
 
 		// Check all paths from the ith indexed city
@@ -81,12 +81,8 @@ int* greedyAlgo(std::vector<Coord> cityArr, int * route)
 			counter++;
 		}
 	}
-    for(int k = 0; k < cityArr.size(); k++){
-        std::cout << route[k];
-        if(k != cityArr.size() - 1) std::cout << "->";
-        else std::cout << endl;
-    }
-    std::cout << "Minimum Cost is : " << (totMinDist) << "res size is " << counter << std::endl;
+
+    std::cout << "Minimum Cost is : " << (totMinDist) << std::endl;
     return route;
 }
 
@@ -129,12 +125,10 @@ int DPAlgo(const vector<vector<int>>& cities, int pos, int visited)
         int distance = cities[pos][i] + DPAlgo(cities, i, visited | (1 << i));
         if(distance < state[pos][visited]) {
             state[pos][visited] = distance;
-            //std::cout << pos << " " << i << " " << visited << " " << distance << endl;
         }
     }
     return state[pos][visited];
 }
-vector<int> cityPath;
 
 void approx(std::vector<Coord> cityArr) {
     int totMinDist = 0;
@@ -230,7 +224,6 @@ void  path(int mask,int pos, const vector<vector<int>>& cities){
     path(mask|(1<<chosenCity), chosenCity, cities);
 }
 
-
 // Main function
 int main(int argc, char* argv[]) 
 {
@@ -256,11 +249,11 @@ int main(int argc, char* argv[])
         int shortestPath[cityArr.size()];
 	    int *result = greedyAlgo(cityArr, shortestPath);
 
-        // for(int k = 0; k < nbrCities; k++){
-        //     std::cout << result[k];
-        //     if(k != nbrCities - 1) std::cout << "->";
-        //     else std::cout << endl;
-        // }
+        for(int k = 0; k < nbrCities; k++){
+            std::cout << result[k];
+            if(k != nbrCities - 1) std::cout << "->";
+            else std::cout << endl;
+        }
 
         auto finish = std::chrono::high_resolution_clock::now();
         executionTime = std::chrono::duration<double, std::milli>(finish - start).count();  
@@ -270,7 +263,7 @@ int main(int argc, char* argv[])
         auto start = std::chrono::high_resolution_clock::now();
         //call algo
         //https://github.com/DylanWeeks2/Travelling-salesman-problem-Brute-Force-vs-Dynamic-Programming-/blob/master/src/tspDynamicProgramming.cpp
-        state = vector< vector< int > >( 1 << nbrCities, vector< int >( nbrCities, INT_MAX ) );
+        state = vector< vector< int > >(1 << nbrCities, vector< int >( nbrCities, INT_MAX ) );
         //for(auto& neighbors : state)
           //  neighbors = vector<int>((1 << citiesMatrix.size()) - 1, INT_MAX);
 
