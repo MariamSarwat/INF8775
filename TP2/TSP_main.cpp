@@ -23,9 +23,9 @@ bool operator == (Coord point1, Coord point2) {
     return (point1.x == point2.x) && (point1.y == point2.y);
 }
 
-int findEuclDist (Coord initCoord, Coord finalCoord){
-    int x = pow(finalCoord.x - initCoord.x, 2);
-    int y = pow(finalCoord.y - initCoord.y, 2);
+uint64_t findEuclDist (Coord initCoord, Coord finalCoord){
+    uint64_t x = pow(finalCoord.x - initCoord.x, 2);
+    uint64_t y = pow(finalCoord.y - initCoord.y, 2);
     return (x + y);
 }
 
@@ -33,10 +33,10 @@ int findEuclDist (Coord initCoord, Coord finalCoord){
 // Function to find the minimum cost path using the greedy method
 void greedyAlgo(std::vector<Coord> cityArr, vector<int>& shortestPath)
 {
-	int totMinDist = 0;
+	uint64_t totMinDist = 0;
 	int counter = 0;
 	int j = 0, i = 0;
-	int minDist = INT_MAX;
+	uint64_t minDist = UINT64_MAX;
 	map<int, int> visitedRouteList;
 
 	// Starting from the 0th indexed city i.e., the first city
@@ -52,13 +52,13 @@ void greedyAlgo(std::vector<Coord> cityArr, vector<int>& shortestPath)
         if (counter == cityArr.size()) 
         {   
             i = shortestPath[counter - 1];
-            int euclDist = findEuclDist(cityArr[i], cityArr[0]);
+            uint64_t euclDist = findEuclDist(cityArr[i], cityArr[0]);
             totMinDist += euclDist;
             break;
         }
 
         if(j != i && visitedRouteList[j] == 0){
-            int euclDist = findEuclDist(cityArr[i], cityArr[j]);
+            uint64_t euclDist = findEuclDist(cityArr[i], cityArr[j]);
             if (euclDist < minDist)
 			{   
 				minDist = euclDist;
@@ -71,7 +71,7 @@ void greedyAlgo(std::vector<Coord> cityArr, vector<int>& shortestPath)
 		if (j == cityArr.size())
 		{
 			totMinDist += minDist;
-			minDist = INT_MAX;
+			minDist = UINT64_MAX;
 			visitedRouteList[shortestPath[counter]] = 1;
 			j = 0;
 			i = shortestPath[counter];
