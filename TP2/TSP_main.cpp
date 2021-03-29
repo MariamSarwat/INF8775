@@ -155,7 +155,7 @@ void approx(std::vector<Coord> cityArr) {
     
     int minDist = INT_MAX;
     Coord actualPoint = {};
-    Coord choosenPoint = {};
+    Coord chosenPoint = {};
     std::vector<Coord> visitedRouteList;
     
     actualPoint.x = cityArr[0].x;
@@ -164,22 +164,22 @@ void approx(std::vector<Coord> cityArr) {
     visitedRouteList.push_back(cityArr[0]);
     cityArr.erase(cityArr.begin());   
 
-    while (cityArr.size()>0)
+    while (cityArr.size() > 0)
     {
-        for (int i=0; i < cityArr.size(); i++) {
+        for (int i = 0; i < cityArr.size(); i++) {
             int distEucl = findEuclDist(actualPoint, cityArr[i]);
             if (distEucl < minDist) {
                 minDist = distEucl;
-                choosenPoint.x = cityArr[i].x;
-                choosenPoint.y = cityArr[i].y;
+                chosenPoint.x = cityArr[i].x;
+                chosenPoint.y = cityArr[i].y;
             }
         }
         totMinDist += minDist;
-        visitedRouteList.push_back(choosenPoint);
-        actualPoint.x = choosenPoint.x;
-        actualPoint.y = choosenPoint.y;
+        visitedRouteList.push_back(chosenPoint);
+        actualPoint.x = chosenPoint.x;
+        actualPoint.y = chosenPoint.y;
        
-        cityArr.erase(find(cityArr.begin(),cityArr.end(),choosenPoint));
+        cityArr.erase(find(cityArr.begin(), cityArr.end(), chosenPoint));
         minDist = INT_MAX;
         counter++;
     }  
