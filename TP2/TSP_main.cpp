@@ -54,8 +54,6 @@ void greedyAlgo(std::vector<Coord> cityArr, vector<int>& shortestPath)
             i = shortestPath[counter - 1];
             int euclDist = findEuclDist(cityArr[0], cityArr[i]);
             totMinDist += euclDist;
-            //route[counter] = 0;
-
             break;
         }
 
@@ -82,7 +80,6 @@ void greedyAlgo(std::vector<Coord> cityArr, vector<int>& shortestPath)
 	}
 
     std::cout << "Minimum Cost is : " << (totMinDist) << std::endl;
-   // return route;
 }
 
 std::vector<std::vector<int>> findDistMatrix(std::vector<Coord> cities){
@@ -130,7 +127,7 @@ int DPAlgo(int pos, int visited, const vector<vector<int>>& citiesMatrix, vector
 }
 
 //https://stackoverflow.com/questions/61869112/travelling-salesman-problem-in-dynamic-programming
-void path(int mask, int pos, const vector<vector<int>>& citiesMatrix, const vector<vector<int>>& state, vector<int>& shortestPath){
+void getDPPath(int pos, int mask, const vector<vector<int>>& citiesMatrix, const vector<vector<int>>& state, vector<int>& shortestPath){
     if(mask == ((1 << citiesMatrix.size()) - 1)) {
         return;
     }
@@ -148,9 +145,10 @@ void path(int mask, int pos, const vector<vector<int>>& citiesMatrix, const vect
             chosenCity = city;
         }
     }
+
+    // here you get the current city you need to visit
     shortestPath.push_back(chosenCity);
-    //printf("%d %d - ", chosenCity, shortestPath.back()); // here you get the current city you need to visit
-    path(mask | (1 << chosenCity), chosenCity, citiesMatrix, state, shortestPath);
+    getDPPath(chosenCity, mask | (1 << chosenCity), citiesMatrix, state, shortestPath);
 }
 
 //https://www.geeksforgeeks.org/travelling-salesman-problem-set-2-approximate-using-mst/?fbclid=IwAR1mcT7xs8ARV-fgmI7uAbIRTN1buN6i2ANK2HKPoEn3f6zvjG9Tkc-otgA
@@ -251,7 +249,6 @@ int main(int argc, char* argv[])
 
     if(nbrCities == 0) return 1;
 
-    double executionTime;
     std::chrono::high_resolution_clock::time_point start, finish;
     vector<int> shortestPath;
 
@@ -272,7 +269,7 @@ int main(int argc, char* argv[])
         finish = std::chrono::high_resolution_clock::now();
         
         shortestPath.push_back(0);
-        path(1, 0, citiesMatrix, state, shortestPath);
+        getDPPath(0, 1, citiesMatrix, state, shortestPath);
     } 
     else if (method == "approx" || method == APPROX_CODE) {
         start = std::chrono::high_resolution_clock::now();
@@ -288,7 +285,7 @@ int main(int argc, char* argv[])
         }
     }
     if (printTime) {
-        executionTime = std::chrono::duration<double, std::milli>(finish - start).count();  
+        double executionTime = std::chrono::duration<double, std::milli>(finish - start).count();  
         std::cout << executionTime << "\n";
     }
     return 0;
