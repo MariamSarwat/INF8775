@@ -31,7 +31,7 @@ int findEuclDist (Coord initCoord, Coord finalCoord){
 
 // Inspire de https://www.geeksforgeeks.org/travelling-salesman-problem-greedy-approach/?ref=rp
 // Function to find the minimum cost path using the greedy method
-int* greedyAlgo(std::vector<Coord> cityArr, int * route)
+void greedyAlgo(std::vector<Coord> cityArr, vector<int>& shortestPath)
 {
 	int totMinDist = 0;
 	int counter = 0;
@@ -41,7 +41,7 @@ int* greedyAlgo(std::vector<Coord> cityArr, int * route)
 
 	// Starting from the 0th indexed city i.e., the first city
 	visitedRouteList[0] = 1;
-    route[counter] = 0;
+    shortestPath[counter] = 0;
     counter++;
 
 	// Traverse vector cityArr
@@ -51,7 +51,7 @@ int* greedyAlgo(std::vector<Coord> cityArr, int * route)
         // Update the ending city in array from city which was last visited
         if (counter == cityArr.size()) 
         {   
-            i = route[counter - 1];
+            i = shortestPath[counter - 1];
             int euclDist = findEuclDist(cityArr[0], cityArr[i]);
             totMinDist += euclDist;
             //route[counter] = 0;
@@ -64,7 +64,7 @@ int* greedyAlgo(std::vector<Coord> cityArr, int * route)
             if (euclDist < minDist)
 			{   
 				minDist = euclDist;
-				route[counter] = j ;
+				shortestPath[counter] = j ;
 			}
         }
         j++;
@@ -74,15 +74,15 @@ int* greedyAlgo(std::vector<Coord> cityArr, int * route)
 		{
 			totMinDist += minDist;
 			minDist = INT_MAX;
-			visitedRouteList[route[counter]] = 1;
+			visitedRouteList[shortestPath[counter]] = 1;
 			j = 0;
-			i = route[counter];
+			i = shortestPath[counter];
 			counter++;
 		}
 	}
 
     std::cout << "Minimum Cost is : " << (totMinDist) << std::endl;
-    return route;
+   // return route;
 }
 
 std::vector<std::vector<int>> findDistMatrix(std::vector<Coord> cities){
@@ -130,7 +130,7 @@ int DPAlgo(int pos, int visited, const vector<vector<int>>& citiesMatrix, vector
 }
 
 //https://stackoverflow.com/questions/61869112/travelling-salesman-problem-in-dynamic-programming
-void path(int mask, int pos, const vector<vector<int>>& citiesMatrix, const vector<vector<int>>& state){
+void path(int mask, int pos, const vector<vector<int>>& citiesMatrix, const vector<vector<int>>& state, vector<int>& shortestPath){
     if(mask == ((1 << citiesMatrix.size()) - 1)) {
         return;
     }
@@ -148,8 +148,9 @@ void path(int mask, int pos, const vector<vector<int>>& citiesMatrix, const vect
             chosenCity = city;
         }
     }
-    printf("%d ", chosenCity); // here you get the current city you need to visit
-    path(mask | (1 << chosenCity), chosenCity, citiesMatrix, state);
+    shortestPath.push_back(chosenCity);
+    //printf("%d %d - ", chosenCity, shortestPath.back()); // here you get the current city you need to visit
+    path(mask | (1 << chosenCity), chosenCity, citiesMatrix, state, shortestPath);
 }
 
 //https://www.geeksforgeeks.org/travelling-salesman-problem-set-2-approximate-using-mst/?fbclid=IwAR1mcT7xs8ARV-fgmI7uAbIRTN1buN6i2ANK2HKPoEn3f6zvjG9Tkc-otgA
@@ -252,17 +253,13 @@ int main(int argc, char* argv[])
 
     double executionTime;
     std::chrono::high_resolution_clock::time_point start, finish;
+    vector<int> shortestPath;
 
     if (method == "glouton" || method == GLOUTON_CODE) {
-        int shortestPath[cityArr.size()];
+        shortestPath = vector<int>(nbrCities, 0);
         start = std::chrono::high_resolution_clock::now();
-	    int *result = greedyAlgo(cityArr, shortestPath);
+	    greedyAlgo(cityArr, shortestPath);
         finish = std::chrono::high_resolution_clock::now();
-        for(int k = 0; k < nbrCities; k++){
-            std::cout << result[k];
-            if(k != nbrCities - 1) std::cout << "->";
-            else std::cout << endl;
-        }
     } 
     else if (method == "progdyn" || method == PROGDYN_CODE) {
         vector<vector<int>> citiesMatrix = findDistMatrix(cityArr);
@@ -273,8 +270,9 @@ int main(int argc, char* argv[])
         start = std::chrono::high_resolution_clock::now();
         cout << "minimum: " << DPAlgo(0, 1, citiesMatrix, state) << endl;
         finish = std::chrono::high_resolution_clock::now();
-        path(1, 0, citiesMatrix, state);
-        std::cout << endl;
+        
+        shortestPath.push_back(0);
+        path(1, 0, citiesMatrix, state, shortestPath);
     } 
     else if (method == "approx" || method == APPROX_CODE) {
         start = std::chrono::high_resolution_clock::now();
@@ -283,7 +281,11 @@ int main(int argc, char* argv[])
     } 
 
     if (printResult) {
-        //ptr->print();
+        for(int k = 0; k < shortestPath.size(); k++){
+            std::cout << shortestPath[k];
+            if(k != shortestPath.size() - 1) std::cout << "->";
+            else std::cout << "->0" << endl;
+        }
     }
     if (printTime) {
         executionTime = std::chrono::duration<double, std::milli>(finish - start).count();  
