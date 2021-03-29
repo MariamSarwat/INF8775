@@ -52,7 +52,7 @@ void greedyAlgo(std::vector<Coord> cityArr, vector<int>& shortestPath)
         if (counter == cityArr.size()) 
         {   
             i = shortestPath[counter - 1];
-            int euclDist = findEuclDist(cityArr[0], cityArr[i]);
+            int euclDist = findEuclDist(cityArr[i], cityArr[0]);
             totMinDist += euclDist;
             break;
         }
@@ -128,21 +128,17 @@ int DPAlgo(int pos, int visited, const vector<vector<int>>& citiesMatrix, vector
 
 //https://stackoverflow.com/questions/61869112/travelling-salesman-problem-in-dynamic-programming
 void getDPPath(int pos, int mask, const vector<vector<int>>& citiesMatrix, const vector<vector<int>>& state, vector<int>& shortestPath){
-    if(mask == ((1 << citiesMatrix.size()) - 1)) {
-        return;
-    }
-    
-    int ans = INT_MAX, chosenCity = pos;
+    int ans = INT_MAX, chosenCity;
 
-    for(int city = 0; city < citiesMatrix.size(); ++city)
+    if(mask == ((1 << citiesMatrix.size()) - 1)) return;    
+    for(int city = 0; city < citiesMatrix.size(); city++)
     {
-        if(city == pos || (mask & (1 << city))>0){
-            continue;
-        }
-        int newAns = citiesMatrix[pos][city] + state[city][mask];
-        if(newAns < ans){
-            ans = newAns;
-            chosenCity = city;
+        if((mask & (1 << city)) == 0) {
+            int newAns = citiesMatrix[pos][city] + state[city][mask | (1 << city)];
+            if(newAns < ans){
+                ans = newAns;
+                chosenCity = city;
+            }
         }
     }
 
@@ -219,7 +215,7 @@ std::pair<int, std::vector<Coord>> readExempFile(std::string filePath)
             int x = -1 , y = -1;
             inputFileStream >> x >> y;
             Coord coordinates = { x, y };
-            if(x == -1 || y == -1) break;
+            if(x == -1 || y == -1) break; //In case of empty line at the end of file.
             cityArr.push_back(coordinates);
         }
         inputFileStream.close();
