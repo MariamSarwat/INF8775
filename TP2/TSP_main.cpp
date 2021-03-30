@@ -153,7 +153,7 @@ void approx(std::vector<Coord> cityArr, vector<int>& shortestPath) {
     uint64_t totMinDist = 0;
     int counter = 0;
 
-    uint64_t minDist = INT_MAX;
+    uint64_t minDist = UINT64_MAX;
     Coord actualPoint = {};
     Coord chosenPoint = {};
     Coord firstPoint = {};
@@ -189,7 +189,7 @@ void approx(std::vector<Coord> cityArr, vector<int>& shortestPath) {
         shortestPath.push_back(index);
 
         cityArr.erase(find(cityArr.begin(), cityArr.end(), chosenPoint));
-        minDist = INT_MAX;
+        minDist = UINT64_MAX;
         counter++;
     }
     uint64_t distEucl = findEuclDist(actualPoint, firstPoint);
