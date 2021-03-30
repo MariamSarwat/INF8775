@@ -199,7 +199,7 @@ void approx(std::vector<Coord> cityArr, vector<int>& shortestPath) {
     
 }
 
-// Print help menu
+//Print help menu
 static void showUsage(std::string name)
 {
     std::cerr << "Usage: " << name << " -a {glouton, progdyn, approx} -e CHEMIN_EXEMPLAIRE [-p] [-t]"
@@ -209,7 +209,7 @@ static void showUsage(std::string name)
         << std::endl;
 }
 
-// Read File with City coordinates
+//Read File with City coordinates
 std::pair<int, std::vector<Coord>> readExempFile(std::string filePath)
 {
     std::ifstream inputFileStream(filePath);
@@ -240,6 +240,19 @@ std::pair<int, std::vector<Coord>> readExempFile(std::string filePath)
     return std::make_pair(nbrCities, cityArr);
 }
 
+void printShortestPath(vector<int> shortestPath){
+    shortestPath.push_back(0);
+    if(shortestPath[1] > shortestPath[shortestPath.size() - 2]){
+        for (int k = shortestPath.size() - 1; k >= 0; k--) {
+            std::cout << shortestPath[k] << endl;
+        }
+    } else {
+        for (int k = 0; k < shortestPath.size(); k++) {
+            std::cout << shortestPath[k] << endl;
+        }
+    } 
+}
+
 // Main function
 int main(int argc, char* argv[])
 {
@@ -263,7 +276,7 @@ int main(int argc, char* argv[])
     vector<int> shortestPath;
 
     if (method == "glouton" || method == GLOUTON_CODE) {
-        shortestPath = vector<int>(nbrCities, 0);
+        shortestPath = vector<int>(nbrCities, -1);
         start = std::chrono::high_resolution_clock::now();
         greedyAlgo(cityArr, shortestPath);
         finish = std::chrono::high_resolution_clock::now();
@@ -287,16 +300,12 @@ int main(int argc, char* argv[])
         finish = std::chrono::high_resolution_clock::now();
     }
 
-    if (printResult) {
-        for (int k = 0; k < shortestPath.size(); k++) {
-            std::cout << shortestPath[k];
-            if (k != shortestPath.size() - 1) std::cout << "->";
-            else std::cout << "->0" << endl;
-        }
-    }
     if (printTime) {
         double executionTime = std::chrono::duration<double, std::milli>(finish - start).count();
-        std::cout << executionTime << "\n";
+        std::cout << executionTime << "\n" << endl;
+    }
+    if (printResult) {
+        printShortestPath(shortestPath);
     }
     return 0;
 }
