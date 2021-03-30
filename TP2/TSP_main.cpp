@@ -23,7 +23,7 @@ bool operator == (Coord point1, Coord point2) {
     return (point1.x == point2.x) && (point1.y == point2.y);
 }
 
-uint64_t findEuclDist (Coord initCoord, Coord finalCoord){
+uint64_t findEuclDist(Coord initCoord, Coord finalCoord) {
     uint64_t x = pow(finalCoord.x - initCoord.x, 2);
     uint64_t y = pow(finalCoord.y - initCoord.y, 2);
     return (x + y);
@@ -33,63 +33,63 @@ uint64_t findEuclDist (Coord initCoord, Coord finalCoord){
 // Function to find the minimum cost path using the greedy method
 void greedyAlgo(std::vector<Coord> cityArr, vector<int>& shortestPath)
 {
-	uint64_t totMinDist = 0;
-	int counter = 0;
-	int j = 0, i = 0;
-	uint64_t minDist = UINT64_MAX;
-	map<int, int> visitedRouteList;
+    uint64_t totMinDist = 0;
+    int counter = 0;
+    int j = 0, i = 0;
+    uint64_t minDist = UINT64_MAX;
+    map<int, int> visitedRouteList;
 
-	// Starting from the 0th indexed city i.e., the first city
-	visitedRouteList[0] = 1;
+    // Starting from the 0th indexed city i.e., the first city
+    visitedRouteList[0] = 1;
     shortestPath[counter] = 0;
     counter++;
 
-	// Traverse vector cityArr
-	while (i < cityArr.size() && j < cityArr.size())
-	{
+    // Traverse vector cityArr
+    while (i < cityArr.size() && j < cityArr.size())
+    {
         // Visited all cities, close path (last node to first node)
         // Update the ending city in array from city which was last visited
-        if (counter == cityArr.size()) 
-        {   
+        if (counter == cityArr.size())
+        {
             i = shortestPath[counter - 1];
             uint64_t euclDist = findEuclDist(cityArr[i], cityArr[0]);
             totMinDist += euclDist;
             break;
         }
 
-        if(j != i && visitedRouteList[j] == 0){
+        if (j != i && visitedRouteList[j] == 0) {
             uint64_t euclDist = findEuclDist(cityArr[i], cityArr[j]);
             if (euclDist < minDist)
-			{   
-				minDist = euclDist;
-				shortestPath[counter] = j ;
-			}
+            {
+                minDist = euclDist;
+                shortestPath[counter] = j;
+            }
         }
         j++;
 
-		// Check all paths from the ith indexed city
-		if (j == cityArr.size())
-		{
-			totMinDist += minDist;
-			minDist = UINT64_MAX;
-			visitedRouteList[shortestPath[counter]] = 1;
-			j = 0;
-			i = shortestPath[counter];
-			counter++;
-		}
-	}
+        // Check all paths from the ith indexed city
+        if (j == cityArr.size())
+        {
+            totMinDist += minDist;
+            minDist = UINT64_MAX;
+            visitedRouteList[shortestPath[counter]] = 1;
+            j = 0;
+            i = shortestPath[counter];
+            counter++;
+        }
+    }
 
     std::cout << "Minimum Cost is : " << (totMinDist) << std::endl;
 }
 
-std::vector<std::vector<int>> findDistMatrix(std::vector<Coord> cities){
+std::vector<std::vector<int>> findDistMatrix(std::vector<Coord> cities) {
     std::vector<std::vector<int>> citiesMatrix(cities.size());
-    for(auto& neighbors : citiesMatrix)
-         neighbors = vector<int>((1 << cities.size()) - 1, INT_MAX);
+    for (auto& neighbors : citiesMatrix)
+        neighbors = vector<int>((1 << cities.size()) - 1, INT_MAX);
 
-    for(int i = 0; i < cities.size(); i++){
-        for (int j = 0; j < cities.size(); j++){
-            if(i == j) {
+    for (int i = 0; i < cities.size(); i++) {
+        for (int j = 0; j < cities.size(); j++) {
+            if (i == j) {
                 citiesMatrix[i][j] = 0;
             }
             else {
@@ -105,21 +105,21 @@ std::vector<std::vector<int>> findDistMatrix(std::vector<Coord> cities){
 //https://gist.github.com/jgcoded/d7ecba7aa3e210419471
 int DPAlgo(int pos, int visited, const vector<vector<int>>& citiesMatrix, vector<vector<int>>& state)
 {
-    if(visited == ((1 << citiesMatrix.size())) - 1)
+    if (visited == ((1 << citiesMatrix.size())) - 1)
         return citiesMatrix[pos][0]; // return to starting city
 
-    if(state[pos][visited] != INT_MAX)
+    if (state[pos][visited] != INT_MAX)
         return state[pos][visited];
-    
-    for(int i = 0; i < citiesMatrix.size(); i++)
+
+    for (int i = 0; i < citiesMatrix.size(); i++)
     {
         // can't visit ourselves unless we're ending & skip if already visited
-        if(i == pos || (visited & (1 << i))){
+        if (i == pos || (visited & (1 << i))) {
             continue;
         }
         int distance = citiesMatrix[pos][i] + DPAlgo(i, visited | (1 << i), citiesMatrix, state);
 
-        if(distance < state[pos][visited]) {
+        if (distance < state[pos][visited]) {
             state[pos][visited] = distance;
         }
     }
@@ -127,15 +127,15 @@ int DPAlgo(int pos, int visited, const vector<vector<int>>& citiesMatrix, vector
 }
 
 //https://stackoverflow.com/questions/61869112/travelling-salesman-problem-in-dynamic-programming
-void getDPPath(int pos, int mask, const vector<vector<int>>& citiesMatrix, const vector<vector<int>>& state, vector<int>& shortestPath){
+void getDPPath(int pos, int mask, const vector<vector<int>>& citiesMatrix, const vector<vector<int>>& state, vector<int>& shortestPath) {
     int ans = INT_MAX, chosenCity;
 
-    if(mask == ((1 << citiesMatrix.size()) - 1)) return;    
-    for(int city = 0; city < citiesMatrix.size(); city++)
+    if (mask == ((1 << citiesMatrix.size()) - 1)) return;
+    for (int city = 0; city < citiesMatrix.size(); city++)
     {
-        if((mask & (1 << city)) == 0) {
+        if ((mask & (1 << city)) == 0) {
             int newAns = citiesMatrix[pos][city] + state[city][mask | (1 << city)];
-            if(newAns < ans){
+            if (newAns < ans) {
                 ans = newAns;
                 chosenCity = city;
             }
@@ -149,25 +149,30 @@ void getDPPath(int pos, int mask, const vector<vector<int>>& citiesMatrix, const
 
 //https://www.geeksforgeeks.org/travelling-salesman-problem-set-2-approximate-using-mst/?fbclid=IwAR1mcT7xs8ARV-fgmI7uAbIRTN1buN6i2ANK2HKPoEn3f6zvjG9Tkc-otgA
 //http://www.mathcs.emory.edu/~cheung/Courses/171/Syllabus/11-Graph/prim2.html?fbclid=IwAR03NsIwqkDZUYQam7pWxX7dccTySCZobjWRxNshCH94tQrR2RmRXqRM5vs
-void approx(std::vector<Coord> cityArr) {
-    int totMinDist = 0;
+void approx(std::vector<Coord> cityArr, vector<int>& shortestPath) {
+    uint64_t totMinDist = 0;
     int counter = 0;
-    
-    int minDist = INT_MAX;
+
+    uint64_t minDist = INT_MAX;
     Coord actualPoint = {};
     Coord chosenPoint = {};
+    Coord firstPoint = {};
+    vector<Coord> cityArrRef=cityArr;
     std::vector<Coord> visitedRouteList;
-    
+
     actualPoint.x = cityArr[0].x;
     actualPoint.y = cityArr[0].y;
-    
+    firstPoint.x= cityArr[0].x;
+    firstPoint.y = cityArr[0].y;
+    shortestPath.push_back(0);
+
     visitedRouteList.push_back(cityArr[0]);
-    cityArr.erase(cityArr.begin());   
+    cityArr.erase(cityArr.begin());
 
     while (cityArr.size() > 0)
     {
         for (int i = 0; i < cityArr.size(); i++) {
-            int distEucl = findEuclDist(actualPoint, cityArr[i]);
+            uint64_t distEucl = findEuclDist(actualPoint, cityArr[i]);
             if (distEucl < minDist) {
                 minDist = distEucl;
                 chosenPoint.x = cityArr[i].x;
@@ -178,16 +183,24 @@ void approx(std::vector<Coord> cityArr) {
         visitedRouteList.push_back(chosenPoint);
         actualPoint.x = chosenPoint.x;
         actualPoint.y = chosenPoint.y;
-       
+
+        auto coord = std::find(cityArrRef.begin(), cityArrRef.end(), actualPoint);
+        auto index = std::distance(cityArrRef.begin(), coord);
+        shortestPath.push_back(index);
+
         cityArr.erase(find(cityArr.begin(), cityArr.end(), chosenPoint));
         minDist = INT_MAX;
         counter++;
-    }  
-    std::cout << "Min cost " << totMinDist << endl;
+    }
+    uint64_t distEucl = findEuclDist(actualPoint, firstPoint);
+    totMinDist += distEucl;
+    visitedRouteList.push_back(firstPoint);
+    std::cout << "Minimum Cost is : " << (totMinDist) << std::endl;
+    
 }
- 
+
 // Print help menu
-static void showUsage(std::string name) 
+static void showUsage(std::string name)
 {
     std::cerr << "Usage: " << name << " -a {glouton, progdyn, approx} -e CHEMIN_EXEMPLAIRE [-p] [-t]"
         << "Parametre optionel :\n"
@@ -197,7 +210,7 @@ static void showUsage(std::string name)
 }
 
 // Read File with City coordinates
-std::pair<int, std::vector<Coord>> readExempFile(std::string filePath) 
+std::pair<int, std::vector<Coord>> readExempFile(std::string filePath)
 {
     std::ifstream inputFileStream(filePath);
     std::vector<Coord> cityArr;
@@ -211,15 +224,16 @@ std::pair<int, std::vector<Coord>> readExempFile(std::string filePath)
             if (isFirstLine) {
                 nbrCities = std::stoi(line);
                 isFirstLine = false;
-            }      
-            int x = -1 , y = -1;
+            }
+            int x = -1, y = -1;
             inputFileStream >> x >> y;
             Coord coordinates = { x, y };
-            if(x == -1 || y == -1) break; //In case of empty line at the end of file.
+            if (x == -1 || y == -1) break; //In case of empty line at the end of file.
             cityArr.push_back(coordinates);
         }
         inputFileStream.close();
-    } else {
+    }
+    else {
         std::cerr << "Ne peux pas ouvrir le fichier specifie " << filePath << "\n";
         return std::make_pair(0, cityArr);
     }
@@ -227,7 +241,7 @@ std::pair<int, std::vector<Coord>> readExempFile(std::string filePath)
 }
 
 // Main function
-int main(int argc, char* argv[]) 
+int main(int argc, char* argv[])
 {
     if (argc < 5) {
         showUsage(argv[0]);
@@ -243,7 +257,7 @@ int main(int argc, char* argv[])
     int nbrCities = fileData.first;
     std::vector<Coord> cityArr = fileData.second;
 
-    if(nbrCities == 0) return 1;
+    if (nbrCities == 0) return 1;
 
     std::chrono::high_resolution_clock::time_point start, finish;
     vector<int> shortestPath;
@@ -251,37 +265,37 @@ int main(int argc, char* argv[])
     if (method == "glouton" || method == GLOUTON_CODE) {
         shortestPath = vector<int>(nbrCities, 0);
         start = std::chrono::high_resolution_clock::now();
-	    greedyAlgo(cityArr, shortestPath);
+        greedyAlgo(cityArr, shortestPath);
         finish = std::chrono::high_resolution_clock::now();
-    } 
+    }
     else if (method == "progdyn" || method == PROGDYN_CODE) {
         vector<vector<int>> citiesMatrix = findDistMatrix(cityArr);
         vector<vector<int>> state(citiesMatrix.size());
-        for(auto& neighbors : state)
+        for (auto& neighbors : state)
             neighbors = vector<int>((1 << citiesMatrix.size()) - 1, INT_MAX);
-        
+
         start = std::chrono::high_resolution_clock::now();
         cout << "minimum: " << DPAlgo(0, 1, citiesMatrix, state) << endl;
         finish = std::chrono::high_resolution_clock::now();
-        
+
         shortestPath.push_back(0);
         getDPPath(0, 1, citiesMatrix, state, shortestPath);
-    } 
+    }
     else if (method == "approx" || method == APPROX_CODE) {
         start = std::chrono::high_resolution_clock::now();
-        approx(cityArr);
+        approx(cityArr, shortestPath);
         finish = std::chrono::high_resolution_clock::now();
-    } 
+    }
 
     if (printResult) {
-        for(int k = 0; k < shortestPath.size(); k++){
+        for (int k = 0; k < shortestPath.size(); k++) {
             std::cout << shortestPath[k];
-            if(k != shortestPath.size() - 1) std::cout << "->";
+            if (k != shortestPath.size() - 1) std::cout << "->";
             else std::cout << "->0" << endl;
         }
     }
     if (printTime) {
-        double executionTime = std::chrono::duration<double, std::milli>(finish - start).count();  
+        double executionTime = std::chrono::duration<double, std::milli>(finish - start).count();
         std::cout << executionTime << "\n";
     }
     return 0;
