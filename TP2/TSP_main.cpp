@@ -438,14 +438,14 @@ void PrimMST(struct Graph* graph)
 
     // Initially size of min heap is equal to V
     minHeap->size = V;
-
+    vector<int> result;
     // In the following loop, min heap contains all nodes
     // not yet added to MST.
     while (!isEmpty(minHeap)) {
         // Extract the vertex with minimum key value
         struct MinHeapNode* minHeapNode = extractMin(minHeap);
         int u = minHeapNode->v; // Store the extracted vertex number
-
+        result.push_back(u);
         // Traverse through all adjacent vertices of u (the extracted
         // vertex) and update their key values
         struct AdjListNode* pCrawl = graph->array[u].head;
@@ -469,6 +469,9 @@ void PrimMST(struct Graph* graph)
 
     // print edges of MST
     printArr(parent, V);
+    for(int i: result)
+        std::cout << i << " ";
+    std::cout << endl;
     std::cout << totMinDist << endl;
 } 
 
