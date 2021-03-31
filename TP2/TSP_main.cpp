@@ -26,7 +26,7 @@ bool operator == (Coord point1, Coord point2) {
 uint64_t findEuclDist(Coord initCoord, Coord finalCoord) {
     uint64_t x = pow(finalCoord.x - initCoord.x, 2);
     uint64_t y = pow(finalCoord.y - initCoord.y, 2);
-    return (x + y);
+    return round(sqrt(x + y));
 }
 
 // Inspire de https://www.geeksforgeeks.org/travelling-salesman-problem-greedy-approach/?ref=rp
@@ -85,7 +85,7 @@ void greedyAlgo(std::vector<Coord> cityArr, vector<int>& shortestPath)
 std::vector<std::vector<int>> findDistMatrix(std::vector<Coord> cities) {
     std::vector<std::vector<int>> citiesMatrix(cities.size());
     for (auto& neighbors : citiesMatrix)
-        neighbors = vector<int>((1 << cities.size()) - 1, INT_MAX);
+        neighbors = vector<int>((1 << cities.size()) - 1, 0);
 
     for (int i = 0; i < cities.size(); i++) {
         for (int j = 0; j < cities.size(); j++) {
