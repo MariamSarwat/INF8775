@@ -149,58 +149,6 @@ void getDPPath(int pos, int mask, const vector<vector<int>>& citiesMatrix, const
     getDPPath(chosenCity, mask | (1 << chosenCity), citiesMatrix, state, shortestPath);
 }
 
-//https://www.geeksforgeeks.org/travelling-salesman-problem-set-2-approximate-using-mst/?fbclid=IwAR1mcT7xs8ARV-fgmI7uAbIRTN1buN6i2ANK2HKPoEn3f6zvjG9Tkc-otgA
-//http://www.mathcs.emory.edu/~cheung/Courses/171/Syllabus/11-Graph/prim2.html?fbclid=IwAR03NsIwqkDZUYQam7pWxX7dccTySCZobjWRxNshCH94tQrR2RmRXqRM5vs
-void approx_old(std::vector<Coord> cityArr, vector<int>& shortestPath) {
-    uint64_t totMinDist = 0;
-    int counter = 0;
-
-    uint64_t minDist = UINT64_MAX;
-    Coord actualPoint = {};
-    Coord chosenPoint = {};
-    Coord firstPoint = {};
-    vector<Coord> cityArrRef = cityArr;
-    std::vector<Coord> visitedRouteList;
-
-    actualPoint.x = cityArr[0].x;
-    actualPoint.y = cityArr[0].y;
-    firstPoint.x = cityArr[0].x;
-    firstPoint.y = cityArr[0].y;
-    shortestPath.push_back(0);
-
-    visitedRouteList.push_back(cityArr[0]);
-    cityArr.erase(cityArr.begin());
-
-    while (cityArr.size() > 0)
-    {
-        for (int i = 0; i < cityArr.size(); i++) {
-            uint64_t distEucl = findEuclDist(actualPoint, cityArr[i]);
-            if (distEucl < minDist) {
-                minDist = distEucl;
-                chosenPoint.x = cityArr[i].x;
-                chosenPoint.y = cityArr[i].y;
-            }
-        }
-        totMinDist += minDist;
-        visitedRouteList.push_back(chosenPoint);
-        actualPoint.x = chosenPoint.x;
-        actualPoint.y = chosenPoint.y;
-
-        auto coord = std::find(cityArrRef.begin(), cityArrRef.end(), actualPoint);
-        auto index = std::distance(cityArrRef.begin(), coord);
-        shortestPath.push_back(index);
-
-        cityArr.erase(find(cityArr.begin(), cityArr.end(), chosenPoint));
-        minDist = UINT64_MAX;
-        counter++;
-    }
-    uint64_t distEucl = findEuclDist(actualPoint, firstPoint);
-    totMinDist += distEucl;
-    visitedRouteList.push_back(firstPoint);
-    std::cout << "Minimum Cost is : " << (totMinDist) << std::endl;
-
-}
-
 struct AdjListNode {
     int dest;
     int weight;
@@ -403,9 +351,8 @@ void printArr(int arr[], int n)
         printf("%d - %d\n", arr[i], i);
 }
 
-// The main function that constructs Minimum Spanning Tree (MST)
-// using Prim's algorithm
-void PrimMST(struct Graph* graph)
+//https://www.geeksforgeeks.org/prims-mst-for-adjacency-list-representation-greedy-algo-6/
+void PrimMST(struct Graph* graph, std::vector<Coord> cityArr, vector<int>& shortestPath)
 {
     uint64_t totMinDist = 0;
     const int V = graph->V; // Get the number of vertices in graph
@@ -438,14 +385,13 @@ void PrimMST(struct Graph* graph)
 
     // Initially size of min heap is equal to V
     minHeap->size = V;
-    vector<int> result;
     // In the following loop, min heap contains all nodes
     // not yet added to MST.
     while (!isEmpty(minHeap)) {
         // Extract the vertex with minimum key value
         struct MinHeapNode* minHeapNode = extractMin(minHeap);
         int u = minHeapNode->v; // Store the extracted vertex number
-        result.push_back(u);
+        shortestPath.push_back(u);
         // Traverse through all adjacent vertices of u (the extracted
         // vertex) and update their key values
         struct AdjListNode* pCrawl = graph->array[u].head;
@@ -457,7 +403,7 @@ void PrimMST(struct Graph* graph)
             // parent of v
             if (isInMinHeap(minHeap, v) && pCrawl->weight < key[v]) {
                 key[v] = pCrawl->weight;
-                
+
 
                 parent[v] = u;
                 decreaseKey(minHeap, v, key[v]);
@@ -466,14 +412,17 @@ void PrimMST(struct Graph* graph)
         }
         totMinDist += key[u];
     }
-
+    
+    
+    int lastDist = findEuclDist(cityArr[shortestPath.front()], cityArr[shortestPath.back()]);
+    totMinDist += lastDist;
+    //cout << lastDist << endl;
     // print edges of MST
-    printArr(parent, V);
-    for(int i: result)
-        std::cout << i << " ";
-    std::cout << endl;
-    std::cout << totMinDist << endl;
-} 
+    //printArr(parent, V);
+    
+    std::cout << "Minimum Cost is : " << (totMinDist) << std::endl;
+    
+}
 
 Graph* createGraph(std::vector<Coord> cityArr) {
     int V = cityArr.size();
@@ -485,7 +434,7 @@ Graph* createGraph(std::vector<Coord> cityArr) {
     }
 
     return graph;
-    
+
 }
 
 //Print help menu
@@ -587,8 +536,9 @@ int main(int argc, char* argv[])
     else if (method == "approx" || method == APPROX_CODE) {
         Graph* graph = createGraph(cityArr);
         start = std::chrono::high_resolution_clock::now();
-        PrimMST(graph);
+        PrimMST(graph,cityArr, shortestPath);
         finish = std::chrono::high_resolution_clock::now();
+        
     }
 
     if (printTime) {
