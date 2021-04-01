@@ -23,8 +23,6 @@ bool operator == (Coord point1, Coord point2) {
     return (point1.x == point2.x) && (point1.y == point2.y);
 }
 
-
-
 uint64_t findEuclDist(Coord initCoord, Coord finalCoord) {
     uint64_t x = pow(finalCoord.x - initCoord.x, 2);
     uint64_t y = pow(finalCoord.y - initCoord.y, 2);
@@ -149,6 +147,7 @@ void getDPPath(int pos, int mask, const vector<vector<int>>& citiesMatrix, const
     getDPPath(chosenCity, mask | (1 << chosenCity), citiesMatrix, state, shortestPath);
 }
 
+/*
 struct AdjListNode {
     int dest;
     int weight;
@@ -392,6 +391,7 @@ void PrimMST(struct Graph* graph, std::vector<Coord> cityArr, vector<int>& short
         struct MinHeapNode* minHeapNode = extractMin(minHeap);
         int u = minHeapNode->v; // Store the extracted vertex number
         shortestPath.push_back(u);
+
         // Traverse through all adjacent vertices of u (the extracted
         // vertex) and update their key values
         struct AdjListNode* pCrawl = graph->array[u].head;
@@ -403,9 +403,8 @@ void PrimMST(struct Graph* graph, std::vector<Coord> cityArr, vector<int>& short
             // parent of v
             if (isInMinHeap(minHeap, v) && pCrawl->weight < key[v]) {
                 key[v] = pCrawl->weight;
-
-
                 parent[v] = u;
+
                 decreaseKey(minHeap, v, key[v]);
             }
             pCrawl = pCrawl->next;
@@ -413,15 +412,13 @@ void PrimMST(struct Graph* graph, std::vector<Coord> cityArr, vector<int>& short
         totMinDist += key[u];
     }
     
-    
     int lastDist = findEuclDist(cityArr[shortestPath.front()], cityArr[shortestPath.back()]);
     totMinDist += lastDist;
     //cout << lastDist << endl;
     // print edges of MST
-    //printArr(parent, V);
-    
+    printArr(parent, V);
+
     std::cout << "Minimum Cost is : " << (totMinDist) << std::endl;
-    
 }
 
 Graph* createGraph(std::vector<Coord> cityArr) {
@@ -432,10 +429,110 @@ Graph* createGraph(std::vector<Coord> cityArr) {
             addEdge(graph, i, j, findEuclDist(cityArr[i], cityArr[j]));
         }
     }
-
     return graph;
 
 }
+*/
+
+//https://github.com/shawontafsir/Travelling-Salesman/blob/master/1305072_mst_preorder.cpp
+int minKey(uint64_t key[], bool mstSet[], int V)
+{
+   // Initialize min value
+   uint64_t min = UINT64_MAX;
+   int min_index;
+
+    for (int v = 0; v < V; v++){
+        if (mstSet[v] == false && key[v] < min){
+            min = key[v];
+            min_index = v;
+        }
+    }
+
+   return min_index;
+}
+
+vector<int> primMST(vector<Coord> arr, int V)
+{
+    vector<int> parent(V);
+    uint64_t key[V];
+    bool mstSet[V];
+
+    for (int i = 0; i < V; i++) {
+        key[i] = UINT64_MAX;
+        mstSet[i] = false;
+    }
+
+    key[0] = 0;
+    parent[0] = -1;
+
+    for (int count = 0; count < (V - 1); count++) {
+        int u = minKey(key, mstSet, V);
+        mstSet[u] = true;
+
+        for (int v = 0; v < V; v++){
+            if (mstSet[v] == false && findEuclDist(arr[u], arr[v]) <  key[v]){
+                parent[v]  = u;
+                key[v] = findEuclDist(arr[u], arr[v]);
+            }
+        }
+    }
+
+    return parent;
+}
+
+queue<int> preOrder(vector<Coord> arr, int V){
+    queue<int> order;
+    vector<int> parent = primMST(arr, V);
+    stack<int> st;
+    vector<int> c_ind;
+
+    for(int i = 0; i < V; i++) 
+        c_ind.push_back(-1);
+
+    st.push(0);
+    order.push(0);
+
+    while(!st.empty()){
+        int p = st.top();
+        for(int i = c_ind[p]; i < V; i++){
+            if(parent[i] == p){
+                parent[i] = -2;
+                c_ind[p] = i;
+                st.push(i);
+                order.push(i);
+                break;
+            }
+
+            if(i == (V - 1)) st.pop();
+        }
+    }
+
+    return order;
+}
+
+void approx(vector<Coord> arr, vector<int>& shortestPath)
+{
+    int V = arr.size();
+    queue<int> q = preOrder(arr, V);
+   
+    uint64_t totMinDist = 0;
+
+    while(!q.empty()){
+        int i = q.front();
+        shortestPath.push_back(i);
+        q.pop();
+        if(!q.empty()){
+            int j = q.front();
+            totMinDist += findEuclDist(arr[i], arr[j]);
+        }
+        else {
+            totMinDist += findEuclDist(arr[i], arr[0]);
+        }
+    }
+    cout << "Distance Minimum : " << totMinDist << endl <<endl;
+}
+//End Approx Algo
+
 
 //Print help menu
 static void showUsage(std::string name)
@@ -527,16 +624,17 @@ int main(int argc, char* argv[])
             neighbors = vector<int>((1 << citiesMatrix.size()) - 1, INT_MAX);
 
         start = std::chrono::high_resolution_clock::now();
-        cout << "minimum: " << DPAlgo(0, 1, citiesMatrix, state) << endl;
+        cout << "Distance Minimum: " << DPAlgo(0, 1, citiesMatrix, state) << endl;
         finish = std::chrono::high_resolution_clock::now();
 
         shortestPath.push_back(0);
         getDPPath(0, 1, citiesMatrix, state, shortestPath);
     }
     else if (method == "approx" || method == APPROX_CODE) {
-        Graph* graph = createGraph(cityArr);
+        //Graph* graph = createGraph(cityArr);
         start = std::chrono::high_resolution_clock::now();
-        PrimMST(graph,cityArr, shortestPath);
+        approx(cityArr, shortestPath);
+        //PrimMST(graph,cityArr, shortestPath);
         finish = std::chrono::high_resolution_clock::now();
         
     }
