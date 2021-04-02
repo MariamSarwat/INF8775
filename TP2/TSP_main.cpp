@@ -31,7 +31,7 @@ uint64_t findEuclDist(Coord initCoord, Coord finalCoord) {
 
 // Inspire de https://www.geeksforgeeks.org/travelling-salesman-problem-greedy-approach/?ref=rp
 // Function to find the minimum cost path using the greedy method
-void greedyAlgo(std::vector<Coord> cityArr, vector<int>& shortestPath)
+uint64_t greedyAlgo(std::vector<Coord> cityArr, vector<int>& shortestPath)
 {
     uint64_t totMinDist = 0;
     int counter = 0;
@@ -79,7 +79,7 @@ void greedyAlgo(std::vector<Coord> cityArr, vector<int>& shortestPath)
         }
     }
 
-    std::cout << "Minimum Cost is : " << (totMinDist) << std::endl;
+    return totMinDist;
 }
 
 std::vector<std::vector<int>> findDistMatrix(std::vector<Coord> cities) {
@@ -465,15 +465,15 @@ vector<int> primMST(vector<Coord> cityArr, int nbrCities)
     key[0] = 0;
     parent[0] = -1;
 
-    for (int count = 0; count < (nbrCities - 1); count++) {
+    for (int count = 0; count < (nbrCities - 1); count++) { //TODO: Figure out why its nbrCities - 1
         int minKey = getMinKey(key, mstSet, nbrCities);
         mstSet[minKey] = true;
 
         for (int v = 0; v < nbrCities; v++){
-            int minDist = findEuclDist(cityArr[minKey], cityArr[v]);
+            uint64_t minDist = findEuclDist(cityArr[minKey], cityArr[v]);
 
             if (mstSet[v] == false && minDist <  key[v]){
-                parent[v]  = minKey;
+                parent[v] = minKey;
                 key[v] = minDist;
             }
         }
@@ -485,8 +485,8 @@ vector<int> primMST(vector<Coord> cityArr, int nbrCities)
 queue<int> preOrder(vector<Coord> cityArr, int nbrCities){
     queue<int> preOrderPath;
     vector<int> parent = primMST(cityArr, nbrCities);
-    stack<int> st;
-    vector<int> c_ind;
+    stack<int> st; //TODO : Rename so that its more representative
+    vector<int> c_ind; //TODO : Rename so that its more representative
 
     for(int i = 0; i < nbrCities; i++) 
         c_ind.push_back(0);
@@ -498,7 +498,7 @@ queue<int> preOrder(vector<Coord> cityArr, int nbrCities){
         int p = st.top();
         for(int i = c_ind[p]; i < nbrCities; i++){
             if(parent[i] == p){
-                parent[i] = -2;
+                parent[i] = -1; //TODO: Figure out if there's any consequences to putting this to -1 instead of -2
                 c_ind[p] = i;
                 st.push(i);
                 preOrderPath.push(i);
@@ -512,7 +512,7 @@ queue<int> preOrder(vector<Coord> cityArr, int nbrCities){
     return preOrderPath;
 }
 
-void approx(vector<Coord> cityArr, int nbrCities, vector<int>& shortestPath)
+uint64_t approx(vector<Coord> cityArr, int nbrCities, vector<int>& shortestPath)
 {   
     queue<int> q = preOrder(cityArr, nbrCities);
     uint64_t totMinDist = 0;
@@ -529,7 +529,7 @@ void approx(vector<Coord> cityArr, int nbrCities, vector<int>& shortestPath)
             totMinDist += findEuclDist(cityArr[i], cityArr[0]);
         }
     }
-    cout << "Distance Minimum : " << totMinDist << endl <<endl;
+    return totMinDist;
 }
 //End Approx Algo
 
@@ -610,11 +610,12 @@ int main(int argc, char* argv[])
 
     std::chrono::high_resolution_clock::time_point start, finish;
     vector<int> shortestPath;
+    uint64_t totMinDist = 0;
 
     if (method == "glouton" || method == GLOUTON_CODE) {
         shortestPath = vector<int>(nbrCities, -1);
         start = std::chrono::high_resolution_clock::now();
-        greedyAlgo(cityArr, shortestPath);
+        totMinDist = greedyAlgo(cityArr, shortestPath);
         finish = std::chrono::high_resolution_clock::now();
     }
     else if (method == "progdyn" || method == PROGDYN_CODE) {
@@ -624,7 +625,7 @@ int main(int argc, char* argv[])
             neighbors = vector<int>((1 << citiesMatrix.size()) - 1, INT_MAX);
 
         start = std::chrono::high_resolution_clock::now();
-        cout << "Distance Minimum: " << DPAlgo(0, 1, citiesMatrix, state) << endl;
+        totMinDist = DPAlgo(0, 1, citiesMatrix, state);
         finish = std::chrono::high_resolution_clock::now();
 
         shortestPath.push_back(0);
@@ -633,12 +634,14 @@ int main(int argc, char* argv[])
     else if (method == "approx" || method == APPROX_CODE) {
         //Graph* graph = createGraph(cityArr);
         start = std::chrono::high_resolution_clock::now();
-        approx(cityArr, nbrCities, shortestPath);
+        totMinDist = approx(cityArr, nbrCities, shortestPath);
         //PrimMST(graph,cityArr, shortestPath);
         finish = std::chrono::high_resolution_clock::now();
         
     }
 
+    std::cout << "Distance Minimum : " << totMinDist << endl << endl;
+    
     if (printTime) {
         double executionTime = std::chrono::duration<double, std::milli>(finish - start).count();
         std::cout << executionTime << "\n" << endl;
