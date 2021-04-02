@@ -435,13 +435,13 @@ Graph* createGraph(std::vector<Coord> cityArr) {
 */
 
 //https://github.com/shawontafsir/Travelling-Salesman/blob/master/1305072_mst_preorder.cpp
-int minKey(uint64_t key[], bool mstSet[], int V)
+int minKey(uint64_t key[], bool mstSet[], int nbrCities)
 {
    // Initialize min value
    uint64_t min = UINT64_MAX;
    int min_index;
 
-    for (int v = 0; v < V; v++){
+    for (int v = 0; v < nbrCities; v++){
         if (mstSet[v] == false && key[v] < min){
             min = key[v];
             min_index = v;
@@ -451,13 +451,13 @@ int minKey(uint64_t key[], bool mstSet[], int V)
    return min_index;
 }
 
-vector<int> primMST(vector<Coord> arr, int V)
+vector<int> primMST(vector<Coord> cityArr, int nbrCities)
 {
-    vector<int> parent(V);
-    uint64_t key[V];
-    bool mstSet[V];
+    vector<int> parent(nbrCities);
+    uint64_t key[nbrCities];
+    bool mstSet[nbrCities];
 
-    for (int i = 0; i < V; i++) {
+    for (int i = 0; i < nbrCities; i++) {
         key[i] = UINT64_MAX;
         mstSet[i] = false;
     }
@@ -465,14 +465,14 @@ vector<int> primMST(vector<Coord> arr, int V)
     key[0] = 0;
     parent[0] = -1;
 
-    for (int count = 0; count < (V - 1); count++) {
-        int u = minKey(key, mstSet, V);
+    for (int count = 0; count < (nbrCities - 1); count++) {
+        int u = minKey(key, mstSet, nbrCities);
         mstSet[u] = true;
 
-        for (int v = 0; v < V; v++){
-            if (mstSet[v] == false && findEuclDist(arr[u], arr[v]) <  key[v]){
+        for (int v = 0; v < nbrCities; v++){
+            if (mstSet[v] == false && findEuclDist(cityArr[u], cityArr[v]) <  key[v]){
                 parent[v]  = u;
-                key[v] = findEuclDist(arr[u], arr[v]);
+                key[v] = findEuclDist(cityArr[u], cityArr[v]);
             }
         }
     }
@@ -480,13 +480,13 @@ vector<int> primMST(vector<Coord> arr, int V)
     return parent;
 }
 
-queue<int> preOrder(vector<Coord> arr, int V){
+queue<int> preOrder(vector<Coord> cityArr, int nbrCities){
     queue<int> order;
-    vector<int> parent = primMST(arr, V);
+    vector<int> parent = primMST(cityArr, nbrCities);
     stack<int> st;
     vector<int> c_ind;
 
-    for(int i = 0; i < V; i++) 
+    for(int i = 0; i < nbrCities; i++) 
         c_ind.push_back(0);
 
     st.push(0);
@@ -494,7 +494,7 @@ queue<int> preOrder(vector<Coord> arr, int V){
 
     while(!st.empty()){
         int p = st.top();
-        for(int i = c_ind[p]; i < V; i++){
+        for(int i = c_ind[p]; i < nbrCities; i++){
             if(parent[i] == p){
                 parent[i] = -2;
                 c_ind[p] = i;
@@ -503,17 +503,17 @@ queue<int> preOrder(vector<Coord> arr, int V){
                 break;
             }
 
-            if(i == (V - 1)) st.pop();
+            if(i == (nbrCities - 1)) st.pop();
         }
     }
 
     return order;
 }
 
-void approx(vector<Coord> arr, vector<int>& shortestPath)
-{
-    int V = arr.size();
-    queue<int> q = preOrder(arr, V);
+void approx(vector<Coord> cityArr, vector<int>& shortestPath)
+{   
+    int nbrCities = cityArr.size();
+    queue<int> q = preOrder(cityArr, nbrCities);
    
     uint64_t totMinDist = 0;
 
@@ -523,10 +523,10 @@ void approx(vector<Coord> arr, vector<int>& shortestPath)
         q.pop();
         if(!q.empty()){
             int j = q.front();
-            totMinDist += findEuclDist(arr[i], arr[j]);
+            totMinDist += findEuclDist(cityArr[i], cityArr[j]);
         }
         else {
-            totMinDist += findEuclDist(arr[i], arr[0]);
+            totMinDist += findEuclDist(cityArr[i], cityArr[0]);
         }
     }
     cout << "Distance Minimum : " << totMinDist << endl <<endl;
