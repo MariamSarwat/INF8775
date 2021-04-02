@@ -465,7 +465,7 @@ vector<int> primMST(vector<Coord> cityArr, int nbrCities)
     key[0] = 0;
     parent[0] = -1;
 
-    for (int count = 0; count < (nbrCities - 1); count++) { //TODO: Figure out why its nbrCities - 1
+    for (int count = 0; count < (nbrCities - 1); count++) { 
         int minKey = getMinKey(key, mstSet, nbrCities);
         mstSet[minKey] = true;
 
@@ -485,27 +485,27 @@ vector<int> primMST(vector<Coord> cityArr, int nbrCities)
 queue<int> preOrder(vector<Coord> cityArr, int nbrCities){
     queue<int> preOrderPath;
     vector<int> parent = primMST(cityArr, nbrCities);
-    stack<int> st; //TODO : Rename so that its more representative
-    vector<int> c_ind; //TODO : Rename so that its more representative
+    stack<int> stck; 
+    vector<int> cityPassed; 
 
     for(int i = 0; i < nbrCities; i++) 
-        c_ind.push_back(0);
+        cityPassed.push_back(0);
 
-    st.push(0);
+    stck.push(0);
     preOrderPath.push(0);
 
-    while(!st.empty()){
-        int p = st.top();
-        for(int i = c_ind[p]; i < nbrCities; i++){
+    while(!stck.empty()){
+        int p = stck.top();
+        for(int i = cityPassed[p]; i < nbrCities; i++){
             if(parent[i] == p){
-                parent[i] = -1; //TODO: Figure out if there's any consequences to putting this to -1 instead of -2
-                c_ind[p] = i;
-                st.push(i);
+                parent[i] = -1; 
+                cityPassed[p] = i;
+                stck.push(i);
                 preOrderPath.push(i);
                 break;
             }
 
-            if(i == (nbrCities - 1)) st.pop();
+            if(i == (nbrCities - 1)) stck.pop();
         }
     }
 
