@@ -442,7 +442,7 @@ int getMinKey(uint64_t key[], bool mstSet[], int nbrCities)
    int min_index;
 
     for (int v = 0; v < nbrCities; v++){
-        if (mstSet[v] == false && key[v] < min){
+        if (!mstSet[v] && key[v] < min){
             min = key[v];
             min_index = v;
         }
@@ -472,7 +472,7 @@ vector<int> primMST(vector<Coord> cityArr, int nbrCities)
         for (int v = 0; v < nbrCities; v++){
             uint64_t minDist = findEuclDist(cityArr[minKey], cityArr[v]);
 
-            if (mstSet[v] == false && minDist <  key[v]){
+            if (!mstSet[v] && minDist <  key[v]){
                 parent[v] = minKey;
                 key[v] = minDist;
             }
@@ -512,7 +512,7 @@ queue<int> preOrder(vector<Coord> cityArr, int nbrCities){
     return preOrderPath;
 }
 
-uint64_t approx(vector<Coord> cityArr, int nbrCities, vector<int>& shortestPath)
+uint64_t approxAlgo(vector<Coord> cityArr, int nbrCities, vector<int>& shortestPath)
 {   
     queue<int> q = preOrder(cityArr, nbrCities);
     uint64_t totMinDist = 0;
@@ -634,14 +634,14 @@ int main(int argc, char* argv[])
     else if (method == "approx" || method == APPROX_CODE) {
         //Graph* graph = createGraph(cityArr);
         start = std::chrono::high_resolution_clock::now();
-        totMinDist = approx(cityArr, nbrCities, shortestPath);
+        totMinDist = approxAlgo(cityArr, nbrCities, shortestPath);
         //PrimMST(graph,cityArr, shortestPath);
         finish = std::chrono::high_resolution_clock::now();
         
     }
 
     std::cout << "Distance Minimum : " << totMinDist << endl << endl;
-    
+
     if (printTime) {
         double executionTime = std::chrono::duration<double, std::milli>(finish - start).count();
         std::cout << executionTime << "\n" << endl;
