@@ -487,7 +487,7 @@ queue<int> preOrder(vector<Coord> arr, int V){
     vector<int> c_ind;
 
     for(int i = 0; i < V; i++) 
-        c_ind.push_back(-1);
+        c_ind.push_back(0);
 
     st.push(0);
     order.push(0);
