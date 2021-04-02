@@ -435,7 +435,7 @@ Graph* createGraph(std::vector<Coord> cityArr) {
 */
 
 //https://github.com/shawontafsir/Travelling-Salesman/blob/master/1305072_mst_preorder.cpp
-int minKey(uint64_t key[], bool mstSet[], int nbrCities)
+int getMinKey(uint64_t key[], bool mstSet[], int nbrCities)
 {
    // Initialize min value
    uint64_t min = UINT64_MAX;
@@ -466,13 +466,15 @@ vector<int> primMST(vector<Coord> cityArr, int nbrCities)
     parent[0] = -1;
 
     for (int count = 0; count < (nbrCities - 1); count++) {
-        int u = minKey(key, mstSet, nbrCities);
-        mstSet[u] = true;
+        int minKey = getMinKey(key, mstSet, nbrCities);
+        mstSet[minKey] = true;
 
         for (int v = 0; v < nbrCities; v++){
-            if (mstSet[v] == false && findEuclDist(cityArr[u], cityArr[v]) <  key[v]){
-                parent[v]  = u;
-                key[v] = findEuclDist(cityArr[u], cityArr[v]);
+            int minDist = findEuclDist(cityArr[minKey], cityArr[v]);
+
+            if (mstSet[v] == false && minDist <  key[v]){
+                parent[v]  = minKey;
+                key[v] = minDist;
             }
         }
     }
@@ -481,7 +483,7 @@ vector<int> primMST(vector<Coord> cityArr, int nbrCities)
 }
 
 queue<int> preOrder(vector<Coord> cityArr, int nbrCities){
-    queue<int> order;
+    queue<int> preOrderPath;
     vector<int> parent = primMST(cityArr, nbrCities);
     stack<int> st;
     vector<int> c_ind;
@@ -490,7 +492,7 @@ queue<int> preOrder(vector<Coord> cityArr, int nbrCities){
         c_ind.push_back(0);
 
     st.push(0);
-    order.push(0);
+    preOrderPath.push(0);
 
     while(!st.empty()){
         int p = st.top();
@@ -499,7 +501,7 @@ queue<int> preOrder(vector<Coord> cityArr, int nbrCities){
                 parent[i] = -2;
                 c_ind[p] = i;
                 st.push(i);
-                order.push(i);
+                preOrderPath.push(i);
                 break;
             }
 
@@ -507,14 +509,12 @@ queue<int> preOrder(vector<Coord> cityArr, int nbrCities){
         }
     }
 
-    return order;
+    return preOrderPath;
 }
 
-void approx(vector<Coord> cityArr, vector<int>& shortestPath)
+void approx(vector<Coord> cityArr, int nbrCities, vector<int>& shortestPath)
 {   
-    int nbrCities = cityArr.size();
     queue<int> q = preOrder(cityArr, nbrCities);
-   
     uint64_t totMinDist = 0;
 
     while(!q.empty()){
@@ -633,7 +633,7 @@ int main(int argc, char* argv[])
     else if (method == "approx" || method == APPROX_CODE) {
         //Graph* graph = createGraph(cityArr);
         start = std::chrono::high_resolution_clock::now();
-        approx(cityArr, shortestPath);
+        approx(cityArr, nbrCities, shortestPath);
         //PrimMST(graph,cityArr, shortestPath);
         finish = std::chrono::high_resolution_clock::now();
         
