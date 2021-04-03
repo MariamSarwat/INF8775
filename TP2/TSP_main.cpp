@@ -115,16 +115,14 @@ int DPAlgo(int pos, int visited, const vector<vector<int>>& citiesMatrix, vector
     for (int i = 0; i < citiesMatrix.size(); i++)
     {
         //Can't visit ourselves unless we're at the end and skip those already visited
-        if (i == pos || (visited & (1 << i))) {
+        if (i == pos || (visited & (1 << i))) 
             continue;
-        }
 
         int distance = citiesMatrix[pos][i] + DPAlgo(i, visited | (1 << i), citiesMatrix, state);
 
         //Choose minimum between new distance calculated, and the one already stored in state
-        if (distance < state[pos][visited]) {
+        if (distance < state[pos][visited]) 
             state[pos][visited] = distance;
-        }
     }
 
     //Return minimum distance found
@@ -135,13 +133,16 @@ int DPAlgo(int pos, int visited, const vector<vector<int>>& citiesMatrix, vector
 void getDPPath(int pos, int mask, const vector<vector<int>>& citiesMatrix, const vector<vector<int>>& state, vector<int>& shortestPath) {
     int ans = INT_MAX, chosenCity;
 
-    if (mask == ((1 << citiesMatrix.size()) - 1)) return;
+    if (mask == ((1 << citiesMatrix.size()) - 1)) 
+        return;
 
     for (int city = 0; city < citiesMatrix.size(); city++)
     {
-        if ((mask & (1 << city)) == 0) {
+        if ((mask & (1 << city)) == 0) 
+        {
             int newAns = citiesMatrix[pos][city] + state[city][mask | (1 << city)];
-            if (newAns < ans) {
+            if (newAns < ans) 
+            {
                 ans = newAns;
                 chosenCity = city;
             }
@@ -162,8 +163,10 @@ int getMinKey(uint64_t key[], bool mstSet[], int nbrCities)
    uint64_t min = UINT64_MAX;
    int min_index;
 
-    for (int v = 0; v < nbrCities; v++){
-        if (!mstSet[v] && key[v] < min){
+    for (int v = 0; v < nbrCities; v++)
+    {
+        if (!mstSet[v] && key[v] < min)
+        {
             min = key[v];
             min_index = v;
         }
