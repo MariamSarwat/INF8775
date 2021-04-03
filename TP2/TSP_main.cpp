@@ -220,21 +220,23 @@ queue<int> preOrder(vector<Coord> cityArr, int nbrCities)
     //Initialize variables
     queue<int> preOrderPath;
     stack<int> stck; 
-    vector<int> cityPassed; 
+    vector<int> cityPassed = vector<int>(nbrCities, 0); 
 
     //Get MST
     vector<int> parent = primMST(cityArr, nbrCities);
 
-    for(int i = 0; i < nbrCities; i++) 
-        cityPassed.push_back(0);
-
+    //Start with first city
     stck.push(0);
     preOrderPath.push(0);
 
-    while(!stck.empty()){
+    while(!stck.empty())
+    {
         int p = stck.top();
-        for(int i = cityPassed[p]; i < nbrCities; i++){
-            if(parent[i] == p){
+
+        for(int i = cityPassed[p]; i < nbrCities; i++)
+        {
+            if(parent[i] == p)
+            {
                 parent[i] = -1; 
                 cityPassed[p] = i;
                 stck.push(i);
@@ -242,7 +244,8 @@ queue<int> preOrder(vector<Coord> cityArr, int nbrCities)
                 break;
             }
 
-            if(i == (nbrCities - 1)) stck.pop();
+            if(i == (nbrCities - 1)) 
+                stck.pop();
         }
     }
 
@@ -254,11 +257,14 @@ uint64_t approxAlgo(vector<Coord> cityArr, int nbrCities, vector<int>& shortestP
     queue<int> q = preOrder(cityArr, nbrCities);
     uint64_t totMinDist = 0;
 
-    while(!q.empty()){
+    while(!q.empty())
+    {
         int i = q.front();
         shortestPath.push_back(i);
         q.pop();
-        if(!q.empty()){
+
+        if(!q.empty())
+        {
             int j = q.front();
             totMinDist += findEuclDist(cityArr[i], cityArr[j]);
         }
