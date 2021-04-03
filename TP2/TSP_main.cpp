@@ -263,14 +263,8 @@ uint64_t approxAlgo(vector<Coord> cityArr, int nbrCities, vector<int>& shortestP
         shortestPath.push_back(i);
         q.pop();
 
-        if(!q.empty())
-        {
-            int j = q.front();
-            totMinDist += findEuclDist(cityArr[i], cityArr[j]);
-        }
-        else {
-            totMinDist += findEuclDist(cityArr[i], cityArr[0]);
-        }
+        int j = (!q.empty())? q.front(): 0;
+        totMinDist += findEuclDist(cityArr[i], cityArr[j]);
     }
     return totMinDist;
 }
@@ -363,6 +357,7 @@ int main(int argc, char* argv[])
         finish = std::chrono::high_resolution_clock::now();
     }
     else if (method == "progdyn" || method == PROGDYN_CODE) {
+        //Calculate 2D distance Matrix and initialise state
         vector<vector<int>> citiesMatrix = findDistMatrix(cityArr);
         vector<vector<int>> state(citiesMatrix.size());
         for (auto& neighbors : state)
@@ -372,6 +367,7 @@ int main(int argc, char* argv[])
         totMinDist = DPAlgo(0, 1, citiesMatrix, state);
         finish = std::chrono::high_resolution_clock::now();
 
+        //Push starting city into shortestPath
         shortestPath.push_back(0);
         getDPPath(0, 1, citiesMatrix, state, shortestPath);
     }
