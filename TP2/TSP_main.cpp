@@ -82,22 +82,21 @@ uint64_t greedyAlgo(std::vector<Coord> cityArr, vector<int>& shortestPath)
 }
 //End Greedy Algorithm
 
+
 //Beginning of Dynamic Programming Algorithm
 //Store our distances in a a 2D Matrix
-std::vector<std::vector<int>> findDistMatrix(std::vector<Coord> cities) {
+std::vector<std::vector<int>> findDistMatrix(std::vector<Coord> cities) 
+{
     std::vector<std::vector<int>> citiesMatrix(cities.size());
     for (auto& neighbors : citiesMatrix)
         neighbors = vector<int>((1 << cities.size()) - 1, 0);
 
-    for (int i = 0; i < cities.size(); i++) {
-        for (int j = 0; j < cities.size(); j++) {
-            if (i == j) {
-                citiesMatrix[i][j] = 0;
-            }
-            else {
-                int euclDist = findEuclDist(cities[i], cities[j]);
-                citiesMatrix[i][j] = euclDist;
-            }
+    for (int i = 0; i < cities.size(); i++) 
+    {
+        for (int j = 0; j < cities.size(); j++) 
+        {
+            int distance = (i != j)? findEuclDist(cities[i], cities[j]): 0;
+            citiesMatrix[i][j] = distance;
         }
     }
 
