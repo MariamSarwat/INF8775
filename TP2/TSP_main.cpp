@@ -11,16 +11,15 @@ std::string PROGDYN_CODE = "1";
 std::string APPROX_CODE = "2";
 
 // A structure for x and y coordinates 
-struct Coord {
+struct Coord 
+{
     int x;
     int y;
 };
 
-bool operator == (Coord point1, Coord point2) {
-    return (point1.x == point2.x) && (point1.y == point2.y);
-}
-
-uint64_t findEuclDist(Coord initCoord, Coord finalCoord) {
+//Returns rounded euclidien distance
+uint64_t findEuclDist(Coord initCoord, Coord finalCoord) 
+{
     uint64_t x = pow(finalCoord.x - initCoord.x, 2);
     uint64_t y = pow(finalCoord.y - initCoord.y, 2);
     return round(sqrt(x + y));
@@ -37,17 +36,16 @@ uint64_t greedyAlgo(std::vector<Coord> cityArr, vector<int>& shortestPath)
     uint64_t minDist = UINT64_MAX;
     map<int, int> visitedRouteList;
 
-    // Starting from the 0th indexed city i.e., the first city
+    //Starting from the first city
     visitedRouteList[0] = 1;
     shortestPath[counter] = 0;
     counter++;
 
-    // Traverse vector cityArr
-    while (i < cityArr.size() && j < cityArr.size())
+    //Traverse vector cityArr and choose city which the smallest distance (becomes our new starting city) 
+    while (i < cityArr.size() && j < cityArr.size()) 
     {
         // Visited all cities, close path (last node to first node)
-        // Update the ending city in array from city which was last visited
-        if (counter == cityArr.size())
+        if (counter == cityArr.size()) 
         {
             i = shortestPath[counter - 1];
             uint64_t euclDist = findEuclDist(cityArr[i], cityArr[0]);
@@ -55,18 +53,21 @@ uint64_t greedyAlgo(std::vector<Coord> cityArr, vector<int>& shortestPath)
             break;
         }
 
-        if (j != i && visitedRouteList[j] == 0) {
+        if (j != i && visitedRouteList[j] == 0) 
+        {
             uint64_t euclDist = findEuclDist(cityArr[i], cityArr[j]);
-            if (euclDist < minDist)
+
+            if (euclDist < minDist) 
             {
                 minDist = euclDist;
                 shortestPath[counter] = j;
             }
         }
+
         j++;
 
-        // Check all paths from the ith indexed city
-        if (j == cityArr.size())
+        // Checked all paths from the ith indexed city
+        if (j == cityArr.size()) 
         {
             totMinDist += minDist;
             minDist = UINT64_MAX;
@@ -295,6 +296,7 @@ std::pair<int, std::vector<Coord>> readExempFile(std::string filePath)
     return std::make_pair(nbrCities, cityArr);
 }
 
+//Prints the shortest path so that the second city printed is smaller than the second to last city printed
 void printShortestPath(vector<int> shortestPath) {
     shortestPath.push_back(0);
     if (shortestPath[1] > shortestPath[shortestPath.size() - 2]) {
