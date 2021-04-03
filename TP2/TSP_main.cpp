@@ -136,6 +136,7 @@ void getDPPath(int pos, int mask, const vector<vector<int>>& citiesMatrix, const
     int ans = INT_MAX, chosenCity;
 
     if (mask == ((1 << citiesMatrix.size()) - 1)) return;
+
     for (int city = 0; city < citiesMatrix.size(); city++)
     {
         if ((mask & (1 << city)) == 0) {
