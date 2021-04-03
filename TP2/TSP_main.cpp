@@ -157,6 +157,7 @@ void getDPPath(int pos, int mask, const vector<vector<int>>& citiesMatrix, const
 
 //Beginning Approximatif Algorithm with Prim
 //https://github.com/shawontafsir/Travelling-Salesman/blob/master/1305072_mst_preorder.cpp
+//Return index with the minimal key
 int getMinKey(uint64_t key[], bool mstSet[], int nbrCities)
 {
    // Initialize min value
@@ -177,26 +178,33 @@ int getMinKey(uint64_t key[], bool mstSet[], int nbrCities)
 
 vector<int> primMST(vector<Coord> cityArr, int nbrCities)
 {
+    //Initialize variables
     vector<int> parent(nbrCities);
     uint64_t key[nbrCities];
     bool mstSet[nbrCities];
 
-    for (int i = 0; i < nbrCities; i++) {
+    for (int i = 0; i < nbrCities; i++) 
+    {
         key[i] = UINT64_MAX;
         mstSet[i] = false;
     }
 
+    //Start with city 0 (has no parent)
     key[0] = 0;
     parent[0] = -1;
 
-    for (int count = 0; count < (nbrCities - 1); count++) { 
+    //Construct MST (parent)
+    for (int count = 0; count < (nbrCities - 1); count++) 
+    { 
         int minKey = getMinKey(key, mstSet, nbrCities);
         mstSet[minKey] = true;
 
-        for (int v = 0; v < nbrCities; v++){
+        for (int v = 0; v < nbrCities; v++)
+        {
             uint64_t minDist = findEuclDist(cityArr[minKey], cityArr[v]);
 
-            if (!mstSet[v] && minDist <  key[v]){
+            if (!mstSet[v] && minDist < key[v])
+            {
                 parent[v] = minKey;
                 key[v] = minDist;
             }
@@ -206,11 +214,16 @@ vector<int> primMST(vector<Coord> cityArr, int nbrCities)
     return parent;
 }
 
-queue<int> preOrder(vector<Coord> cityArr, int nbrCities){
+//Get pre ordered queue of cities from constructed MST
+queue<int> preOrder(vector<Coord> cityArr, int nbrCities)
+{
+    //Initialize variables
     queue<int> preOrderPath;
-    vector<int> parent = primMST(cityArr, nbrCities);
     stack<int> stck; 
     vector<int> cityPassed; 
+
+    //Get MST
+    vector<int> parent = primMST(cityArr, nbrCities);
 
     for(int i = 0; i < nbrCities; i++) 
         cityPassed.push_back(0);
