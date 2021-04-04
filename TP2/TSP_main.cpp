@@ -377,7 +377,7 @@ int main(int argc, char* argv[])
         finish = std::chrono::high_resolution_clock::now();
     }
 
-    std::cout << "Distance Minimum : " << totMinDist << endl << endl;
+    //std::cout << "Distance Minimum : " << totMinDist << endl << endl; // Used to print the total minimum distance found.
 
     if (printTime) {
         double executionTime = std::chrono::duration<double, std::milli>(finish - start).count();
