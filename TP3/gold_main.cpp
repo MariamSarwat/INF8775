@@ -1,16 +1,31 @@
-
+#include <iostream> 
 #include <fstream>
 #include <chrono>
 #include <math.h>
 #include <string>
 #include <sstream>
 #include<vector>
+#include <stdc++.h>
 
 
 
 using namespace std;
 
+void algorythm(vector<vector<pair<int, int>>> profit) {
+    int maxElement = 0;
 
+    for (int i = 0; i < profit.size(); i++) {
+
+        for (int j = 0; j < profit.size(); j++) {
+
+            if (profit[i][j].first > maxElement) {
+
+                maxElement = profit[i][j].first;
+            }
+        }
+    }
+
+}
 
 //Print help menu
 static void showUsage(std::string name)
@@ -112,7 +127,8 @@ int main(int argc, char* argv[])
     //bool printTime = (string(argv[3]) != "0");
     //bool printResult = (string(argv[4]) != "0");
     vector<vector<pair<int,int>>> profit=readExempFile(filePath);
-
+    
+    algorythm(profit);
       
 
     return 0;
