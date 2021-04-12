@@ -23,7 +23,7 @@ static void showUsage(std::string name)
 }
 
 //Read File
-vector<vector<int>> readExempFile(std::string filePath)
+vector<vector<pair<int,int>>> readExempFile(std::string filePath)
 {
     std::ifstream inputFileStream(filePath);
     std::string line;
@@ -33,7 +33,7 @@ vector<vector<int>> readExempFile(std::string filePath)
     int M = 0;
     vector<vector<int>> gold;
     vector<vector<int>> value;
-    vector<vector<int>> profit;
+    vector<vector<pair<int, int>>> profit;
     int number;
 
 
@@ -88,9 +88,9 @@ vector<vector<int>> readExempFile(std::string filePath)
     }
     for (int i = 0; i < M; i++) {
         for (int y = 0; y < N; y++) {
-            cout << gold[i][y] << '-' << value[i][y] << endl;
-            profit[i][y] = gold[i][y] - value[i][y];
-            cout << profit[i][y] << endl;
+            
+            profit[i][y] = std::make_pair(gold[i][y] - value[i][y],0);
+            
         }
     }
     return profit;
@@ -111,8 +111,9 @@ int main(int argc, char* argv[])
 
     //bool printTime = (string(argv[3]) != "0");
     //bool printResult = (string(argv[4]) != "0");
-    vector<vector<int>> profit=readExempFile(filePath);
+    vector<vector<pair<int,int>>> profit=readExempFile(filePath);
 
+      
 
     return 0;
 }
