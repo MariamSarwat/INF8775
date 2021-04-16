@@ -68,7 +68,7 @@ vector<vector<pair<int, int>>> verifyCondition(vector<vector<pair<int, int>>> pr
         if (pos.row != 0) {
             row_min = pos.row - 1;
         }
-        else { row_min = pos.row; }
+        else { break; }
         if (pos.column != 0) {
             column_min = pos.column - 1;
         }
@@ -120,28 +120,34 @@ void algorythm(vector<vector<pair<int, int>>> profit) {
 
              maxElement = profit[firstRow][j].first;
              
-             position.row = firstRow;
-             position.column = j;
+             new_position.row = firstRow;
+             new_position.column = j;
              
         }
     }
-    profit[position.row][position.column].second = 1;
-    new_position = findMaxNeighbour(profit, position.row, position.column);
-    
-    
+    profit[new_position.row][new_position.column].second = 1;
+
+    //while (profit[findMaxNeighbour(profit, new_position.row, new_position.column).row][findMaxNeighbour(profit, new_position.row, new_position.column).column].first > 0) {
+        new_position = findMaxNeighbour(profit, new_position.row, new_position.column);
+
+
+        profit[new_position.row][new_position.column].second = 1;
+        list_pos.push_back(new_position);
+        profit = verifyCondition(profit, list_pos);
+        list_pos.erase(list_pos.begin(), list_pos.end());
+
+   // }
+
+    /*new_position = findMaxNeighbour(profit, new_position.row, new_position.column);
     profit[new_position.row][new_position.column].second = 1;
     list_pos.push_back(new_position);
     profit=verifyCondition(profit, list_pos);
+    list_pos.erase(list_pos.begin(), list_pos.end());
 
     new_position = findMaxNeighbour(profit, new_position.row, new_position.column);
     profit[new_position.row][new_position.column].second = 1;
     list_pos.push_back(new_position);
-    profit=verifyCondition(profit, list_pos);
-
-    new_position = findMaxNeighbour(profit, new_position.row, new_position.column);
-    profit[new_position.row][new_position.column].second = 1;
-    list_pos.push_back(new_position);
-    profit=verifyCondition(profit, list_pos);
+    profit=verifyCondition(profit, list_pos);*/
 
 
 
