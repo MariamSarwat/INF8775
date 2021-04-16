@@ -58,7 +58,7 @@ Position findMaxNeighbour(vector<vector<pair<int, int>>> profit, int row, int co
 vector<vector<pair<int, int>>> verifyCondition(vector<vector<pair<int, int>>> profit, vector <Position> list_pos) {
     Position pos = { 0,0 };
     int row_min = 0, row_max = 0, column_min = 0, column_max = 0;
-    while (list_pos.empty() == false) {
+    while (list_pos.size() >0) {
         //cout << gelist_pos.erase(list_pos.begin()). << endl;
         auto it = list_pos.at(0);
         list_pos.erase(list_pos.begin());
@@ -73,11 +73,11 @@ vector<vector<pair<int, int>>> verifyCondition(vector<vector<pair<int, int>>> pr
             column_min = pos.column - 1;
         }
         else { column_min = pos.column; }
-        if (pos.row != profit.size()) {
+        if (pos.row != profit.size()-1) {
             row_max = pos.row + 1;
         }
         else{row_max = pos.row; }
-        if (pos.column != 0) {
+        if (pos.column != profit.size()-1) {
             column_max = pos.column + 1;
         }
         else { column_max = pos.column; }
@@ -87,13 +87,20 @@ vector<vector<pair<int, int>>> verifyCondition(vector<vector<pair<int, int>>> pr
         if (profit[row_min][column_min].second == 0) {
             
             profit[row_min][column_min].second = 1;
+            Position new_pos = { row_min ,column_min };
+            list_pos.push_back(new_pos);
         }
         if (profit[row_min][pos.column].second == 0) {
             profit[row_min][pos.column].second = 1;
+            Position new_pos = { row_min ,pos.column };
+            list_pos.push_back(new_pos);
         }
         if(profit[row_min][column_max].second == 0) {
             profit[row_min][column_max].second = 1;
+            Position new_pos = { row_min ,column_max };
+            list_pos.push_back(new_pos);
         }
+
     }
     return profit;
 }
@@ -124,11 +131,17 @@ void algorythm(vector<vector<pair<int, int>>> profit) {
     
     profit[new_position.row][new_position.column].second = 1;
     list_pos.push_back(new_position);
-    verifyCondition(profit, list_pos);
+    profit=verifyCondition(profit, list_pos);
+
     new_position = findMaxNeighbour(profit, new_position.row, new_position.column);
     profit[new_position.row][new_position.column].second = 1;
     list_pos.push_back(new_position);
-    verifyCondition(profit, list_pos);
+    profit=verifyCondition(profit, list_pos);
+
+    new_position = findMaxNeighbour(profit, new_position.row, new_position.column);
+    profit[new_position.row][new_position.column].second = 1;
+    list_pos.push_back(new_position);
+    profit=verifyCondition(profit, list_pos);
 
 
 
