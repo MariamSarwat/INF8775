@@ -5,7 +5,7 @@
 #include <string>
 #include <sstream>
 #include<vector>
-#include <stdc++.h>
+#include <bits\stdc++.h>
 #include <limits>
 
 
@@ -28,13 +28,13 @@ Position findMaxNeighbour(vector<vector<pair<int, int>>> profit, int row, int co
     if (row != 0) {
         i_min = row - 1;
     }
-    if (row != profit.size()) {
+    if (row != profit.size() - 1) {
         i_max = row + 1;
     }
     if (column != 0) {
         j_min = column - 1;
     }
-    if (column != profit.size()) {
+    if (column != profit[profit.size() - 1].size() - 1) {
         j_max = column + 1;
     }
 
@@ -77,7 +77,7 @@ vector<vector<pair<int, int>>> verifyCondition(vector<vector<pair<int, int>>> pr
             row_max = pos.row + 1;
         }
         else{row_max = pos.row; }
-        if (pos.column != profit.size()-1) {
+        if (pos.column != profit[profit.size() - 1].size()-1) {
             column_max = pos.column + 1;
         }
         else { column_max = pos.column; }
@@ -105,49 +105,59 @@ vector<vector<pair<int, int>>> verifyCondition(vector<vector<pair<int, int>>> pr
     return profit;
 }
 
-void algorythm(vector<vector<pair<int, int>>> profit) {
+void algorithm(vector<vector<pair<int, int>>> profit) {
     int maxElement = 0;
     int firstRow = 0;
     Position position = { 0,0 };
     Position new_position = { 0,0 };
     std::vector <Position> list_pos;
 
-    
-
-    for (int j = 0; j < profit.size(); j++) {
-
+    for (int j = 0; j < profit[profit.size() - 1].size(); j++) {
         if (profit[firstRow][j].first > maxElement) {
-
-             maxElement = profit[firstRow][j].first;
+            maxElement = profit[firstRow][j].first;
              
-             new_position.row = firstRow;
-             new_position.column = j;
-             
+            new_position.row = firstRow;
+            new_position.column = j; 
         }
     }
     profit[new_position.row][new_position.column].second = 1;
+    int iteration = profit[profit.size() - 1].size();
 
-    //while (profit[findMaxNeighbour(profit, new_position.row, new_position.column).row][findMaxNeighbour(profit, new_position.row, new_position.column).column].first > 0) {
+    while (iteration >= 0) {
         new_position = findMaxNeighbour(profit, new_position.row, new_position.column);
 
-
+        //std::cout << "Max neighbour : " << new_position.column << " " << new_position.row << endl;
         profit[new_position.row][new_position.column].second = 1;
         list_pos.push_back(new_position);
         profit = verifyCondition(profit, list_pos);
         list_pos.erase(list_pos.begin(), list_pos.end());
+        iteration --;
+    }
+    int maxProfit = 0;
 
-   // }
+    for(int x = 0; x < profit.size(); x++){
+        for (int y = 0; y < profit[x].size(); y++)
+        {
+            if(profit[x][y].second == 1){
+                maxProfit += profit[x][y].first;
+            }
+        }
+    }
+    std::cout << maxProfit << endl;
+    // new_position = findMaxNeighbour(profit, new_position.row, new_position.column);
+    // std::cout << "Max neighbour : " << new_position.column << " " << new_position.row << endl;
 
-    /*new_position = findMaxNeighbour(profit, new_position.row, new_position.column);
-    profit[new_position.row][new_position.column].second = 1;
-    list_pos.push_back(new_position);
-    profit=verifyCondition(profit, list_pos);
-    list_pos.erase(list_pos.begin(), list_pos.end());
+    // profit[new_position.row][new_position.column].second = 1;
+    // list_pos.push_back(new_position);
+    // profit=verifyCondition(profit, list_pos);
+    // list_pos.erase(list_pos.begin(), list_pos.end());
 
-    new_position = findMaxNeighbour(profit, new_position.row, new_position.column);
-    profit[new_position.row][new_position.column].second = 1;
-    list_pos.push_back(new_position);
-    profit=verifyCondition(profit, list_pos);*/
+    // new_position = findMaxNeighbour(profit, new_position.row, new_position.column);
+    // std::cout << "Max neighbour : " << new_position.column << " " << new_position.row << endl;
+
+    // profit[new_position.row][new_position.column].second = 1;
+    // list_pos.push_back(new_position);
+    // profit=verifyCondition(profit, list_pos);
 
 
 
@@ -174,6 +184,7 @@ vector<vector<pair<int,int>>> readExempFile(std::string filePath)
     std::string line;
 
     bool isFirstLine = true;
+    bool isGoldMatrix = false, isCostMatrix = false;
     int N = 0;
     int M = 0;
     vector<vector<int>> gold;
@@ -181,68 +192,65 @@ vector<vector<pair<int,int>>> readExempFile(std::string filePath)
     vector<vector<pair<int, int>>> profit;
     int number;
 
-
-
     if (inputFileStream) {
         while (std::getline(inputFileStream, line)) {
-            std::vector<int>   data;
-
 
             if (isFirstLine) {
                 N = std::stoi(line.substr(0, line.find(' ')));
                 M = std::stoi(line.substr(line.find(' ') + 1, line.length() - 1));
-                
+
+                gold.resize(N);
+                for (int i = 0; i < N; i++) {
+                    gold[i].resize(M);
+                }
+                value.resize(N);
+                for (int i = 0; i < N; i++) {
+                    value[i].resize(M);
+                }
+                profit.resize(N);
+                for (int i = 0; i < N; i++) {
+                    profit[i].resize(M);
+                }
+
                 isFirstLine = false;
-            }
-            gold.resize(M);
-            for (int i = 0; i < M; i++) {
-                gold[i].resize(N);
-            }
-            value.resize(M);
-            for (int i = 0; i < M; i++) {
-                value[i].resize(N);
-            }
-            profit.resize(M);
-            for (int i = 0; i < M; i++) {
-                profit[i].resize(N);
+                isGoldMatrix = true;
             }
 
-
-            for (int i = 0; i < M; i++) {
-                for (int y = 0; y < N; y++) {
-                    inputFileStream >> number;
-                    gold[i][y] = number;
+            if(isGoldMatrix){
+                for (int i = 0; i < N; i++) {
+                    for (int y = 0; y < M; y++) {
+                        inputFileStream >> number;
+                        gold[i][y] = number;
+                    }
                 }
+                isGoldMatrix = false;
+                isCostMatrix = true;
             }
-
-            for (int i = 0; i < M; i++) {
-                for (int y = 0; y < N; y++) {
-                    inputFileStream >> number;
-                    value[i][y] = number;
+        
+            if(isCostMatrix){
+                for (int i = 0; i < N; i++) {
+                    for (int y = 0; y < M; y++) {
+                        inputFileStream >> number;
+                        value[i][y] = number;
+                    }
                 }
+                isCostMatrix = false;
             }
-            
         }
         inputFileStream.close();
-
-        
     }
     else {
         std::cerr << "Ne peux pas ouvrir le fichier specifie " << filePath << "\n";
-
     }
-    for (int i = 0; i < M; i++) {
-        for (int y = 0; y < N; y++) {
-            
+
+    for (int i = 0; i < N; i++) {
+        for (int y = 0; y < M; y++) { 
             profit[i][y] = std::make_pair(gold[i][y] - value[i][y],0);
-            
         }
     }
+
     return profit;
-
 }
-
-
 
 // Main function
 int main(int argc, char* argv[])
@@ -254,11 +262,16 @@ int main(int argc, char* argv[])
 
     std::string filePath = argv[2];
 
-    //bool printTime = (string(argv[3]) != "0");
-    //bool printResult = (string(argv[4]) != "0");
-    vector<vector<pair<int,int>>> profit=readExempFile(filePath);
-    
-    algorythm(profit);
+    vector<vector<pair<int,int>>> profit = readExempFile(filePath);
+    for(int x = 0; x < profit.size(); x++){
+        for (int y = 0; y < profit[x].size(); y++)
+        {
+            std::cout << profit[x][y].first << " ";
+        }
+        std::cout << endl;
+    }
+
+    algorithm(profit);
       
 
     return 0;
