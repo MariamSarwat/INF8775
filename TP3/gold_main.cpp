@@ -52,6 +52,20 @@ Position findMaxNeighbour(vector<vector<pair<int, int>>> profit, int row, int co
             }
         }
     }
+    if (position.row == 0 && position.column == 0) {
+        for (int j = 0; j < profit[profit.size() - 1].size(); j++) {
+            for (int x = 0; x < profit.size(); x++) {
+                if (profit[x][j].second == 0) {
+                    if (profit[x][j].first > maxElement) {
+                        maxElement = profit[x][j].first;
+
+                        position.row = x;
+                        position.column = j;
+                    }
+                }
+            }
+        }
+    }
     return position;
 }
 
@@ -106,6 +120,11 @@ vector<vector<pair<int, int>>> verifyCondition(vector<vector<pair<int, int>>> pr
 }
 
 void algorithm(vector<vector<pair<int, int>>> profit) {
+    long start_time = chrono::system_clock::to_time_t(chrono::system_clock::now());
+    long end_time = start_time + 180;
+    cout << end_time << endl;
+
+
     int maxElement = 0;
     int firstRow = 0;
     Position position = { 0,0 };
@@ -121,12 +140,15 @@ void algorithm(vector<vector<pair<int, int>>> profit) {
         }
     }
     profit[new_position.row][new_position.column].second = 1;
-    int iteration = profit[profit.size() - 1].size();
+    //int iteration = profit[profit.size() - 1].size();
+    //cout << iteration << endl;
+    int iteration = 3000;
 
-    while (iteration >= 0) {
+    while (chrono::system_clock::to_time_t(chrono::system_clock::now())<end_time) {
+        //std::cout << "Max neighbour : " << new_position.column << " " << new_position.row << endl;
         new_position = findMaxNeighbour(profit, new_position.row, new_position.column);
 
-        //std::cout << "Max neighbour : " << new_position.column << " " << new_position.row << endl;
+        
         profit[new_position.row][new_position.column].second = 1;
         list_pos.push_back(new_position);
         profit = verifyCondition(profit, list_pos);
@@ -263,13 +285,13 @@ int main(int argc, char* argv[])
     std::string filePath = argv[2];
 
     vector<vector<pair<int,int>>> profit = readExempFile(filePath);
-    for(int x = 0; x < profit.size(); x++){
+    /*for(int x = 0; x < profit.size(); x++){
         for (int y = 0; y < profit[x].size(); y++)
         {
             std::cout << profit[x][y].first << " ";
         }
         std::cout << endl;
-    }
+    }*/
 
     algorithm(profit);
       
