@@ -71,7 +71,7 @@ Position findMaxNeighbour(vector<vector<pair<int, int>>> profit, int row, int co
     return position;
 }
 
-vector<vector<pair<int, int>>> verifyCondition(vector<vector<pair<int, int>>> profit, vector <Position> list_pos) {
+vector<vector<pair<int, int>>> verifyCondition(vector<vector<pair<int, int>>>& profit, vector <Position> list_pos) {
     Position pos = { 0,0 };
     int row_min = 0, row_max = 0, column_min = 0, column_max = 0;
     while (list_pos.size() >0) {
@@ -121,34 +121,18 @@ vector<vector<pair<int, int>>> verifyCondition(vector<vector<pair<int, int>>> pr
     return profit;
 }
 
-int algorithm(vector<vector<pair<int, int>>> profit, int iteration) {
-    int maxElement = 0;
-    int firstRow = 0;
-    Position position = { 0,0 };
-    Position new_position = { 0,0 };
+pair<int, Position> algorithm(vector<vector<pair<int, int>>>& profit, Position new_position) {
+    int profitFound = 0;
     std::vector <Position> list_pos;
 
-    for (int j = 0; j < profit[profit.size() - 1].size(); j++) {
-        if (profit[firstRow][j].first > maxElement) {
-            maxElement = profit[firstRow][j].first;
-             
-            new_position.row = firstRow;
-            new_position.column = j; 
-        }
-    }
-    profit[new_position.row][new_position.column].second = 1;
-
-    int profitFound = 0;
-    for (int i = 0; i < iteration; i++) {
-        new_position = findMaxNeighbour(profit, new_position.row, new_position.column);
-        if (new_position.row == INT_MIN && new_position.column == INT_MIN) {
-            profitFound = INT_MIN;
-            break;
-        }
+    new_position = findMaxNeighbour(profit, new_position.row, new_position.column);
+    if (new_position.row != INT_MIN && new_position.column != INT_MIN) {
         profit[new_position.row][new_position.column].second = 1;
         list_pos.push_back(new_position);
         profit = verifyCondition(profit, list_pos);
         list_pos.erase(list_pos.begin(), list_pos.end());
+    } else {
+        profitFound = INT_MIN;
     }
 
     if(profitFound == 0) {
@@ -161,8 +145,8 @@ int algorithm(vector<vector<pair<int, int>>> profit, int iteration) {
             }
         }
     }
-    //std::cout << profitFound << endl;
-    return profitFound;
+
+    return make_pair(profitFound, new_position);
 }
 
 //Print help menu
@@ -273,17 +257,34 @@ int main(int argc, char* argv[])
     int MaxProfit = 0;
     int profitFound = 0;
     int iteration = 1;
+
+    int maxElement = 0;
+    int firstRow = 0;
+    Position new_position = { 0,0 };
+
+    for (int j = 0; j < profit[profit.size() - 1].size(); j++) {
+        if (profit[firstRow][j].first > maxElement) {
+            maxElement = profit[firstRow][j].first;
+             
+            new_position.row = firstRow;
+            new_position.column = j; 
+        }
+    }
+    profit[new_position.row][new_position.column].second = 1;
    
+    pair<int, Position> result;
+
     while (profitFound != INT_MIN) {
-        profitFound = algorithm(profit, iteration);
-        
+        result = algorithm(profit, new_position);
+        profitFound = result.first;
+        new_position = result.second;
+
         if(profitFound > MaxProfit) {
             MaxProfit = profitFound;
             //print
             std::cout << MaxProfit << endl;
         }
 
-        iteration ++;
         if(profitFound == INT_MIN) std::cout << "done"<<endl;
     }
     
