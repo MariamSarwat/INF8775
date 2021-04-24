@@ -61,48 +61,39 @@ Position findMaxNeighbour(vector<vector<pair<int, int>>> profit, Position curren
 }
 
 vector<vector<pair<int, int>>> verifyCondition(vector<vector<pair<int, int>>>& profit, vector<Position> list_pos) {
-    int row_min = 0, row_max = 0, column_min = 0, column_max = 0;
 
     while (list_pos.size() > 0) {
         Position pos = list_pos.at(0);
+        Position newPosition;
+
         list_pos.erase(list_pos.begin());
 
+        int row_min = 0;
         if (pos.row != 0) {
             row_min = pos.row - 1;
         }
-        else { break; }
-        if (pos.column != 0) {
-            column_min = pos.column - 1;
-        }
-        else { column_min = pos.column; }
-        if (pos.row != NBR_ROWS - 1) {
-            row_max = pos.row + 1;
-        }
-        else{row_max = pos.row; }
-        if (pos.column != NBR_COLUMNS - 1) {
-            column_max = pos.column + 1;
-        }
-        else { column_max = pos.column; }
+        else break;
 
-       
+        int column_min = (pos.column != 0)? pos.column - 1 : pos.column;
+        int column_max = (pos.column != NBR_COLUMNS - 1)? pos.column + 1 : pos.column;
 
-        if (profit[row_min][column_min].second == 0) {
-            
+        if (profit[row_min][column_min].second == 0) { 
             profit[row_min][column_min].second = 1;
-            Position new_pos = { row_min ,column_min };
-            list_pos.push_back(new_pos);
+            newPosition = {row_min, column_min};
+            list_pos.push_back(newPosition);
         }
+
         if (profit[row_min][pos.column].second == 0) {
             profit[row_min][pos.column].second = 1;
-            Position new_pos = { row_min ,pos.column };
-            list_pos.push_back(new_pos);
-        }
-        if(profit[row_min][column_max].second == 0) {
-            profit[row_min][column_max].second = 1;
-            Position new_pos = { row_min ,column_max };
-            list_pos.push_back(new_pos);
+            newPosition = {row_min, pos.column};
+            list_pos.push_back(newPosition);
         }
 
+        if(profit[row_min][column_max].second == 0) {
+            profit[row_min][column_max].second = 1;
+            newPosition = {row_min, column_max};
+            list_pos.push_back(newPosition);
+        }
     }
     return profit;
 }
