@@ -17,7 +17,6 @@ int NBR_COLUMNS = 0;
 
 //Regarde les voisins autour et trouve le max et retourne sa position
 Position findMaxNeighbour(vector<vector<pair<int, int>>> profit, Position currentPosition) {
-    int maxElement = 0;
     Position newPosition = {0, 0};
     int row = currentPosition.row;
     int column = currentPosition.column;
@@ -27,6 +26,8 @@ Position findMaxNeighbour(vector<vector<pair<int, int>>> profit, Position curren
 
     int y_min = (column != 0)? column - 1 : 0;
     int y_max = (column != NBR_COLUMNS - 1)?  column + 1 : column;
+
+    int maxElement = 0;
 
     for (int x = x_min; x <= x_max; x++) {
         for (int y = y_min; y <= y_max; y++) {
@@ -59,15 +60,12 @@ Position findMaxNeighbour(vector<vector<pair<int, int>>> profit, Position curren
     return newPosition;
 }
 
-vector<vector<pair<int, int>>> verifyCondition(vector<vector<pair<int, int>>>& profit, vector <Position> list_pos) {
-    Position pos = { 0,0 };
+vector<vector<pair<int, int>>> verifyCondition(vector<vector<pair<int, int>>>& profit, vector<Position> list_pos) {
     int row_min = 0, row_max = 0, column_min = 0, column_max = 0;
-    while (list_pos.size() >0) {
-        //cout << gelist_pos.erase(list_pos.begin()). << endl;
-        auto it = list_pos.at(0);
+
+    while (list_pos.size() > 0) {
+        Position pos = list_pos.at(0);
         list_pos.erase(list_pos.begin());
-        pos.row = it.row;
-        pos.column = it.column;
 
         if (pos.row != 0) {
             row_min = pos.row - 1;
