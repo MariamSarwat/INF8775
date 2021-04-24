@@ -60,9 +60,9 @@ Position findMaxNeighbour(vector<vector<pair<int, int>>> profit, Position curren
     return newPosition;
 }
 
-void verifyCondition(vector<vector<pair<int, int>>>& profit, Position startingPosition) {
+void verifyCondition(vector<vector<pair<int, int>>>& profit, Position newPosition) {
     vector<Position> positionsToVerify;
-    positionsToVerify.push_back(startingPosition);
+    positionsToVerify.push_back(newPosition);
 
     while (positionsToVerify.size() > 0) {
         Position pos = positionsToVerify.at(0);
@@ -221,38 +221,32 @@ int main(int argc, char* argv[])
 
     vector<vector<pair<int,int>>> profit = readExempFile(filePath);
 
-    int MaxProfit = 0;
-    int profitFound = 0;
-    int iteration = 1;
-
+    int currentMaxProfit = 0;
+    int currentProfit = 0;
     int maxElement = 0;
-    int firstRow = 0;
-    Position new_position = { 0,0 };
 
-    for (int j = 0; j < profit[profit.size() - 1].size(); j++) {
-        if (profit[firstRow][j].first > maxElement) {
-            maxElement = profit[firstRow][j].first;
-             
-            new_position.row = firstRow;
-            new_position.column = j; 
+    Position newPosition = {0, 0};
+
+    for (int y = 0; y < NBR_COLUMNS; y++) {
+        if (profit[0][y].first > maxElement) {
+            maxElement = profit[0][y].first;
+            newPosition = {0, y};
         }
     }
-    profit[new_position.row][new_position.column].second = 1;
+    profit[newPosition.row][newPosition.column].second = 1;
    
     pair<int, Position> result;
 
-    while (profitFound != INT_MIN) {
-        result = algorithm(profit, new_position);
-        profitFound = result.first;
-        new_position = result.second;
+    while (currentProfit != INT_MIN) {
+        result = algorithm(profit, newPosition);
+        currentProfit = result.first;
+        newPosition = result.second;
 
-        if(profitFound > MaxProfit) {
-            MaxProfit = profitFound;
+        if(currentProfit > currentMaxProfit) {
+            currentMaxProfit = currentProfit;
             //print
-            std::cout << MaxProfit << endl;
+            std::cout << currentMaxProfit << endl;
         }
-
-        if(profitFound == INT_MIN) std::cout << "done"<<endl;
     }
     
 
