@@ -60,7 +60,7 @@ Position findMaxNeighbour(vector<vector<pair<int, int>>> profit, Position curren
     return newPosition;
 }
 
-vector<vector<pair<int, int>>> verifyCondition(vector<vector<pair<int, int>>>& profit, vector<Position> list_pos) {
+void verifyCondition(vector<vector<pair<int, int>>>& profit, vector<Position> list_pos) {
 
     while (list_pos.size() > 0) {
         Position pos = list_pos.at(0);
@@ -95,7 +95,6 @@ vector<vector<pair<int, int>>> verifyCondition(vector<vector<pair<int, int>>>& p
             list_pos.push_back(newPosition);
         }
     }
-    return profit;
 }
 
 pair<int, Position> algorithm(vector<vector<pair<int, int>>>& profit, Position new_position) {
@@ -106,7 +105,7 @@ pair<int, Position> algorithm(vector<vector<pair<int, int>>>& profit, Position n
     if (new_position.row != INT_MIN && new_position.column != INT_MIN) {
         profit[new_position.row][new_position.column].second = 1;
         list_pos.push_back(new_position);
-        profit = verifyCondition(profit, list_pos);
+        verifyCondition(profit, list_pos);
         list_pos.erase(list_pos.begin(), list_pos.end());
     } else {
         profitFound = INT_MIN;
