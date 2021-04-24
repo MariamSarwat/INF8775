@@ -70,8 +70,6 @@ void verifyCondition(vector<vector<pair<int, int>>>& profit, Position newPositio
         Position pos = positionsToVerify[i];
         Position newPosition;
 
-        //positionsToVerify.erase(positionsToVerify.begin());
-
         int row_min = 0;
         if (pos.row != 0) {
             row_min = pos.row - 1;
@@ -101,8 +99,6 @@ void verifyCondition(vector<vector<pair<int, int>>>& profit, Position newPositio
     }
     for(int i = positionsToVerify.size() - 1; i >= 0; i--)
         listPos.push_back(positionsToVerify[i]);
-
-    //positionsToVerify.erase(list_pos.begin(), list_pos.end());
 }
 
 pair<int, Position> algorithm(vector<vector<pair<int, int>>>& profit, Position newPosition) {
@@ -113,10 +109,7 @@ pair<int, Position> algorithm(vector<vector<pair<int, int>>>& profit, Position n
     if (newPosition.row != INT_MIN && newPosition.column != INT_MIN) {
         profit[newPosition.row][newPosition.column].second = 1;
         
-        
         verifyCondition(profit, newPosition);
-
-       // listPos.push_back(newPosition);
 
         for(int x = 0; x < NBR_ROWS; x++){
             for (int y = 0; y < NBR_COLUMNS; y++)
@@ -217,6 +210,13 @@ vector<vector<pair<int,int>>> readExempFile(std::string filePath)
     return profit;
 }
 
+void printPath(){
+    for(int i = 0; i < listPos.size(); i++) {
+        std::cout << listPos[i].row << " " << listPos[i].column << endl;
+    }
+    std::cout << endl;
+}
+
 // Main function
 int main(int argc, char* argv[])
 {
@@ -245,7 +245,7 @@ int main(int argc, char* argv[])
     listPos.push_back(newPosition);
 
     pair<int, Position> result;
-    int iteration = 0;
+    int iteration = 1;
 
     while (currentProfit != INT_MIN) {
         result = algorithm(profit, newPosition);
@@ -254,13 +254,18 @@ int main(int argc, char* argv[])
 
         if(currentProfit > currentMaxProfit) {
             currentMaxProfit = currentProfit;
+            if(iteration > 0){
+                printPath();
+                iteration = 0;
+            }
         } 
+        else {
+            iteration ++;
+        }
     }
     
-    std::cout << "Profit " << currentMaxProfit << endl;
-    for(int i = 0; i < listPos.size(); i++) {
-        std::cout << listPos[i].row << " " << listPos[i].column << endl;
-    }
+    std::cout << "Final Profit " << currentMaxProfit << endl;
+    printPath();
 
     return 0;
 }
