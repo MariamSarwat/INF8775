@@ -12,16 +12,19 @@ struct Position {
     int column;
 };
 
+int NBR_ROWS = 0;
+int NBR_COLUMNS = 0;
+
 //Regarde les voisins autour et trouve le max et retourne la position
 Position findMaxNeighbour(vector<vector<pair<int, int>>> profit, int row, int column) {
     int maxElement = 0;
     Position newPosition = {0, 0};
 
     int x_min = (row != 0)? row - 1 : 0;
-    int x_max = (row != profit.size() - 1)?  row + 1 : row;
+    int x_max = (row != NBR_ROWS - 1)?  row + 1 : row;
 
     int y_min = (column != 0)? column - 1 : 0;
-    int y_max = (column != profit[profit.size() - 1].size() - 1)?  column + 1 : column;
+    int y_max = (column != NBR_COLUMNS - 1)?  column + 1 : column;
 
     for (int x = x_min; x <= x_max; x++) {
         for (int y = y_min; y <= y_max; y++) {
@@ -35,8 +38,8 @@ Position findMaxNeighbour(vector<vector<pair<int, int>>> profit, int row, int co
         }
     }
     if (newPosition.row == 0 && newPosition.column == 0) {
-        for (int x = 0; x < profit.size(); x++) {
-            for (int y = 0; y < profit[x].size(); y++) {
+        for (int x = 0; x < NBR_ROWS; x++) {
+            for (int y = 0; y < NBR_COLUMNS; y++) {
                 if (profit[x][y].second == 0) {
                     if (profit[x][y].first > maxElement) {
                         maxElement = profit[x][y].first;
@@ -73,11 +76,11 @@ vector<vector<pair<int, int>>> verifyCondition(vector<vector<pair<int, int>>>& p
             column_min = pos.column - 1;
         }
         else { column_min = pos.column; }
-        if (pos.row != profit.size()-1) {
+        if (pos.row != NBR_ROWS - 1) {
             row_max = pos.row + 1;
         }
         else{row_max = pos.row; }
-        if (pos.column != profit[profit.size() - 1].size()-1) {
+        if (pos.column != NBR_COLUMNS - 1) {
             column_max = pos.column + 1;
         }
         else { column_max = pos.column; }
@@ -120,8 +123,8 @@ pair<int, Position> algorithm(vector<vector<pair<int, int>>>& profit, Position n
     }
 
     if(profitFound == 0) {
-        for(int x = 0; x < profit.size(); x++){
-            for (int y = 0; y < profit[x].size(); y++)
+        for(int x = 0; x < NBR_ROWS; x++){
+            for (int y = 0; y < NBR_COLUMNS; y++)
             {
                 if(profit[x][y].second == 1){
                     profitFound += profit[x][y].first;
@@ -151,8 +154,7 @@ vector<vector<pair<int,int>>> readExempFile(std::string filePath)
 
     bool isFirstLine = true;
     bool isGoldMatrix = false, isCostMatrix = false;
-    int N = 0;
-    int M = 0;
+
     vector<vector<int>> gold;
     vector<vector<int>> value;
     vector<vector<pair<int, int>>> profit;
@@ -162,20 +164,20 @@ vector<vector<pair<int,int>>> readExempFile(std::string filePath)
         while (std::getline(inputFileStream, line)) {
 
             if (isFirstLine) {
-                N = std::stoi(line.substr(0, line.find(' ')));
-                M = std::stoi(line.substr(line.find(' ') + 1, line.length() - 1));
+                NBR_ROWS = std::stoi(line.substr(0, line.find(' ')));
+                NBR_COLUMNS = std::stoi(line.substr(line.find(' ') + 1, line.length() - 1));
 
-                gold.resize(N);
-                for (int i = 0; i < N; i++) {
-                    gold[i].resize(M);
+                gold.resize(NBR_ROWS);
+                for (int i = 0; i < NBR_ROWS; i++) {
+                    gold[i].resize(NBR_COLUMNS);
                 }
-                value.resize(N);
-                for (int i = 0; i < N; i++) {
-                    value[i].resize(M);
+                value.resize(NBR_ROWS);
+                for (int i = 0; i < NBR_ROWS; i++) {
+                    value[i].resize(NBR_COLUMNS);
                 }
-                profit.resize(N);
-                for (int i = 0; i < N; i++) {
-                    profit[i].resize(M);
+                profit.resize(NBR_ROWS);
+                for (int i = 0; i < NBR_ROWS; i++) {
+                    profit[i].resize(NBR_COLUMNS);
                 }
 
                 isFirstLine = false;
@@ -183,8 +185,8 @@ vector<vector<pair<int,int>>> readExempFile(std::string filePath)
             }
 
             if(isGoldMatrix){
-                for (int i = 0; i < N; i++) {
-                    for (int y = 0; y < M; y++) {
+                for (int i = 0; i < NBR_ROWS; i++) {
+                    for (int y = 0; y < NBR_COLUMNS; y++) {
                         inputFileStream >> number;
                         gold[i][y] = number;
                     }
@@ -194,8 +196,8 @@ vector<vector<pair<int,int>>> readExempFile(std::string filePath)
             }
         
             if(isCostMatrix){
-                for (int i = 0; i < N; i++) {
-                    for (int y = 0; y < M; y++) {
+                for (int i = 0; i < NBR_ROWS; i++) {
+                    for (int y = 0; y < NBR_COLUMNS; y++) {
                         inputFileStream >> number;
                         value[i][y] = number;
                     }
@@ -209,8 +211,8 @@ vector<vector<pair<int,int>>> readExempFile(std::string filePath)
         std::cerr << "Ne peux pas ouvrir le fichier specifie " << filePath << "\n";
     }
 
-    for (int i = 0; i < N; i++) {
-        for (int y = 0; y < M; y++) { 
+    for (int i = 0; i < NBR_ROWS; i++) {
+        for (int y = 0; y < NBR_COLUMNS; y++) { 
             profit[i][y] = std::make_pair(gold[i][y] - value[i][y],0);
         }
     }
@@ -229,14 +231,6 @@ int main(int argc, char* argv[])
     std::string filePath = argv[2];
 
     vector<vector<pair<int,int>>> profit = readExempFile(filePath);
-    
-    // for(int x = 0; x < profit.size(); x++){
-    //     for (int y = 0; y < profit[x].size(); y++)
-    //     {
-    //         std::cout << profit[x][y].first << " ";
-    //     }
-    //     std::cout << endl;
-    // }
 
     int MaxProfit = 0;
     int profitFound = 0;
