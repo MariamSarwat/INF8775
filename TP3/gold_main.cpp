@@ -15,6 +15,8 @@ struct Position {
 int NBR_ROWS = 0;
 int NBR_COLUMNS = 0;
 
+vector<Position> listPos;
+
 //Regarde les voisins autour et trouve le max et retourne sa position
 Position findMaxNeighbour(vector<vector<pair<int, int>>> profit, Position currentPosition) {
     Position newPosition = {0, 0};
@@ -64,11 +66,11 @@ void verifyCondition(vector<vector<pair<int, int>>>& profit, Position newPositio
     vector<Position> positionsToVerify;
     positionsToVerify.push_back(newPosition);
 
-    while (positionsToVerify.size() > 0) {
-        Position pos = positionsToVerify.at(0);
+    for (int i = 0; i < positionsToVerify.size(); i++) {
+        Position pos = positionsToVerify[i];
         Position newPosition;
 
-        positionsToVerify.erase(positionsToVerify.begin());
+        //positionsToVerify.erase(positionsToVerify.begin());
 
         int row_min = 0;
         if (pos.row != 0) {
@@ -79,9 +81,9 @@ void verifyCondition(vector<vector<pair<int, int>>>& profit, Position newPositio
         int column_min = (pos.column != 0)? pos.column - 1 : pos.column;
         int column_max = (pos.column != NBR_COLUMNS - 1)? pos.column + 1 : pos.column;
 
-        if (profit[row_min][column_min].second == 0) { 
-            profit[row_min][column_min].second = 1;
-            newPosition = {row_min, column_min};
+        if(profit[row_min][column_max].second == 0) {
+            profit[row_min][column_max].second = 1;
+            newPosition = {row_min, column_max};
             positionsToVerify.push_back(newPosition);
         }
 
@@ -90,13 +92,16 @@ void verifyCondition(vector<vector<pair<int, int>>>& profit, Position newPositio
             newPosition = {row_min, pos.column};
             positionsToVerify.push_back(newPosition);
         }
-
-        if(profit[row_min][column_max].second == 0) {
-            profit[row_min][column_max].second = 1;
-            newPosition = {row_min, column_max};
+        
+        if (profit[row_min][column_min].second == 0) { 
+            profit[row_min][column_min].second = 1;
+            newPosition = {row_min, column_min};
             positionsToVerify.push_back(newPosition);
         }
     }
+    for(int i = positionsToVerify.size() - 1; i >= 0; i--)
+        listPos.push_back(positionsToVerify[i]);
+
     //positionsToVerify.erase(list_pos.begin(), list_pos.end());
 }
 
@@ -108,7 +113,10 @@ pair<int, Position> algorithm(vector<vector<pair<int, int>>>& profit, Position n
     if (newPosition.row != INT_MIN && newPosition.column != INT_MIN) {
         profit[newPosition.row][newPosition.column].second = 1;
         
+        
         verifyCondition(profit, newPosition);
+
+       // listPos.push_back(newPosition);
 
         for(int x = 0; x < NBR_ROWS; x++){
             for (int y = 0; y < NBR_COLUMNS; y++)
@@ -234,8 +242,10 @@ int main(int argc, char* argv[])
         }
     }
     profit[newPosition.row][newPosition.column].second = 1;
-   
+    listPos.push_back(newPosition);
+
     pair<int, Position> result;
+    int iteration = 0;
 
     while (currentProfit != INT_MIN) {
         result = algorithm(profit, newPosition);
@@ -244,11 +254,13 @@ int main(int argc, char* argv[])
 
         if(currentProfit > currentMaxProfit) {
             currentMaxProfit = currentProfit;
-            //print
-            std::cout << currentMaxProfit << endl;
-        }
+        } 
     }
     
+    std::cout << "Profit " << currentMaxProfit << endl;
+    for(int i = 0; i < listPos.size(); i++) {
+        std::cout << listPos[i].row << " " << listPos[i].column << endl;
+    }
 
     return 0;
 }
