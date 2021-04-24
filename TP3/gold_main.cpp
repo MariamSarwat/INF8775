@@ -16,28 +16,20 @@ struct Position {
 Position findMaxNeighbour(vector<vector<pair<int, int>>> profit, int row, int column) {
     int maxElement = 0;
     Position newPosition = {0, 0};
-    int i_min = 0, i_max = row, j_min = 0, j_max = column;
 
-    if (row != 0) {
-        i_min = row - 1;
-    }
-    if (row != profit.size() - 1) {
-        i_max = row + 1;
-    }
-    if (column != 0) {
-        j_min = column - 1;
-    }
-    if (column != profit[profit.size() - 1].size() - 1) {
-        j_max = column + 1;
-    }
+    int x_min = (row != 0)? row - 1 : 0;
+    int x_max = (row != profit.size() - 1)?  row + 1 : row;
 
-    for (int i = i_min; i <= i_max; i++) {
-        for (int j = j_min; j <= j_max; j++) {
-            if (profit[i][j].second == 0) {
-                if (profit[i][j].first > maxElement) {
-                    maxElement = profit[i][j].first;
-                    newPosition.row = i;
-                    newPosition.column = j;
+    int y_min = (column != 0)? column - 1 : 0;
+    int y_max = (column != profit[profit.size() - 1].size() - 1)?  column + 1 : column;
+
+    for (int x = x_min; x <= x_max; x++) {
+        for (int y = y_min; y <= y_max; y++) {
+            if (profit[x][y].second == 0) {
+                if (profit[x][y].first > maxElement) {
+                    maxElement = profit[x][y].first;
+                    newPosition.row = x;
+                    newPosition.column = y;
                 }
             }
         }
