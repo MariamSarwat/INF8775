@@ -15,10 +15,12 @@ struct Position {
 int NBR_ROWS = 0;
 int NBR_COLUMNS = 0;
 
-//Regarde les voisins autour et trouve le max et retourne la position
-Position findMaxNeighbour(vector<vector<pair<int, int>>> profit, int row, int column) {
+//Regarde les voisins autour et trouve le max et retourne sa position
+Position findMaxNeighbour(vector<vector<pair<int, int>>> profit, Position currentPosition) {
     int maxElement = 0;
     Position newPosition = {0, 0};
+    int row = currentPosition.row;
+    int column = currentPosition.column;
 
     int x_min = (row != 0)? row - 1 : 0;
     int x_max = (row != NBR_ROWS - 1)?  row + 1 : row;
@@ -31,28 +33,27 @@ Position findMaxNeighbour(vector<vector<pair<int, int>>> profit, int row, int co
             if (profit[x][y].second == 0) {
                 if (profit[x][y].first > maxElement) {
                     maxElement = profit[x][y].first;
-                    newPosition.row = x;
-                    newPosition.column = y;
+                    newPosition = {x, y};
                 }
             }
         }
     }
+
     if (newPosition.row == 0 && newPosition.column == 0) {
         for (int x = 0; x < NBR_ROWS; x++) {
             for (int y = 0; y < NBR_COLUMNS; y++) {
                 if (profit[x][y].second == 0) {
                     if (profit[x][y].first > maxElement) {
                         maxElement = profit[x][y].first;
-                        newPosition.row = x;
-                        newPosition.column = y;
+                        newPosition = {x, y};
                     }
                 }
             }
         }
     }
+
     if (newPosition.row == 0 && newPosition.column == 0) {
-        newPosition.row = INT_MIN;
-        newPosition.column = INT_MIN;
+        newPosition = {INT_MIN, INT_MIN};
     }
 
     return newPosition;
@@ -112,7 +113,7 @@ pair<int, Position> algorithm(vector<vector<pair<int, int>>>& profit, Position n
     int profitFound = 0;
     std::vector <Position> list_pos;
 
-    new_position = findMaxNeighbour(profit, new_position.row, new_position.column);
+    new_position = findMaxNeighbour(profit, new_position);
     if (new_position.row != INT_MIN && new_position.column != INT_MIN) {
         profit[new_position.row][new_position.column].second = 1;
         list_pos.push_back(new_position);
