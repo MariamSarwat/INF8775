@@ -60,13 +60,15 @@ Position findMaxNeighbour(vector<vector<pair<int, int>>> profit, Position curren
     return newPosition;
 }
 
-void verifyCondition(vector<vector<pair<int, int>>>& profit, vector<Position> list_pos) {
+void verifyCondition(vector<vector<pair<int, int>>>& profit, Position startingPosition) {
+    vector<Position> positionsToVerify;
+    positionsToVerify.push_back(startingPosition);
 
-    while (list_pos.size() > 0) {
-        Position pos = list_pos.at(0);
+    while (positionsToVerify.size() > 0) {
+        Position pos = positionsToVerify.at(0);
         Position newPosition;
 
-        list_pos.erase(list_pos.begin());
+        positionsToVerify.erase(positionsToVerify.begin());
 
         int row_min = 0;
         if (pos.row != 0) {
@@ -80,38 +82,34 @@ void verifyCondition(vector<vector<pair<int, int>>>& profit, vector<Position> li
         if (profit[row_min][column_min].second == 0) { 
             profit[row_min][column_min].second = 1;
             newPosition = {row_min, column_min};
-            list_pos.push_back(newPosition);
+            positionsToVerify.push_back(newPosition);
         }
 
         if (profit[row_min][pos.column].second == 0) {
             profit[row_min][pos.column].second = 1;
             newPosition = {row_min, pos.column};
-            list_pos.push_back(newPosition);
+            positionsToVerify.push_back(newPosition);
         }
 
         if(profit[row_min][column_max].second == 0) {
             profit[row_min][column_max].second = 1;
             newPosition = {row_min, column_max};
-            list_pos.push_back(newPosition);
+            positionsToVerify.push_back(newPosition);
         }
     }
+    //positionsToVerify.erase(list_pos.begin(), list_pos.end());
 }
 
 pair<int, Position> algorithm(vector<vector<pair<int, int>>>& profit, Position new_position) {
     int profitFound = 0;
-    std::vector <Position> list_pos;
+    std::vector<Position> list_pos;
 
     new_position = findMaxNeighbour(profit, new_position);
     if (new_position.row != INT_MIN && new_position.column != INT_MIN) {
         profit[new_position.row][new_position.column].second = 1;
-        list_pos.push_back(new_position);
-        verifyCondition(profit, list_pos);
-        list_pos.erase(list_pos.begin(), list_pos.end());
-    } else {
-        profitFound = INT_MIN;
-    }
+        
+        verifyCondition(profit, new_position);
 
-    if(profitFound == 0) {
         for(int x = 0; x < NBR_ROWS; x++){
             for (int y = 0; y < NBR_COLUMNS; y++)
             {
@@ -120,6 +118,8 @@ pair<int, Position> algorithm(vector<vector<pair<int, int>>>& profit, Position n
                 }
             }
         }
+    } else {
+        profitFound = INT_MIN;
     }
 
     return make_pair(profitFound, new_position);
