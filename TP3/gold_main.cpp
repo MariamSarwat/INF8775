@@ -1,29 +1,22 @@
 #include <iostream> 
 #include <fstream>
-#include <chrono>
 #include <math.h>
 #include <string>
-#include <sstream>
-#include<vector>
+#include <vector>
 #include <bits\stdc++.h>
-#include <limits>
-
-
 
 using namespace std;
 
 struct Position {
     int row;
     int column;
-
 };
-
 
 //Regarde les voisins autour et trouve le max et retourne la position
 Position findMaxNeighbour(vector<vector<pair<int, int>>> profit, int row, int column) {
     int maxElement = 0;
-    Position position = { 0,0 };
-    int i_min=0, i_max=row, j_min=0, j_max = column;
+    Position newPosition = {0, 0};
+    int i_min = 0, i_max = row, j_min = 0, j_max = column;
 
     if (row != 0) {
         i_min = row - 1;
@@ -43,32 +36,31 @@ Position findMaxNeighbour(vector<vector<pair<int, int>>> profit, int row, int co
             if (profit[i][j].second == 0) {
                 if (profit[i][j].first > maxElement) {
                     maxElement = profit[i][j].first;
-                    position.row = i;
-                    position.column = j;
+                    newPosition.row = i;
+                    newPosition.column = j;
                 }
             }
         }
     }
-    if (position.row == 0 && position.column == 0) {
+    if (newPosition.row == 0 && newPosition.column == 0) {
         for (int x = 0; x < profit.size(); x++) {
             for (int y = 0; y < profit[x].size(); y++) {
                 if (profit[x][y].second == 0) {
                     if (profit[x][y].first > maxElement) {
                         maxElement = profit[x][y].first;
-                        position.row = x;
-                        position.column = y;
+                        newPosition.row = x;
+                        newPosition.column = y;
                     }
                 }
             }
         }
     }
-    if (position.row == 0 && position.column == 0) {
-        //std::cout << "row and column still 0 "<< endl;
-        position.row = INT_MIN;
-        position.column = INT_MIN;
+    if (newPosition.row == 0 && newPosition.column == 0) {
+        newPosition.row = INT_MIN;
+        newPosition.column = INT_MIN;
     }
 
-    return position;
+    return newPosition;
 }
 
 vector<vector<pair<int, int>>> verifyCondition(vector<vector<pair<int, int>>>& profit, vector <Position> list_pos) {
