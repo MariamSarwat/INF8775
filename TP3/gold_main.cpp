@@ -100,29 +100,29 @@ void verifyCondition(vector<vector<pair<int, int>>>& profit, Position startingPo
     //positionsToVerify.erase(list_pos.begin(), list_pos.end());
 }
 
-pair<int, Position> algorithm(vector<vector<pair<int, int>>>& profit, Position new_position) {
-    int profitFound = 0;
-    std::vector<Position> list_pos;
+pair<int, Position> algorithm(vector<vector<pair<int, int>>>& profit, Position newPosition) {
+    int currentProfit = 0;
 
-    new_position = findMaxNeighbour(profit, new_position);
-    if (new_position.row != INT_MIN && new_position.column != INT_MIN) {
-        profit[new_position.row][new_position.column].second = 1;
+    newPosition = findMaxNeighbour(profit, newPosition);
+
+    if (newPosition.row != INT_MIN && newPosition.column != INT_MIN) {
+        profit[newPosition.row][newPosition.column].second = 1;
         
-        verifyCondition(profit, new_position);
+        verifyCondition(profit, newPosition);
 
         for(int x = 0; x < NBR_ROWS; x++){
             for (int y = 0; y < NBR_COLUMNS; y++)
             {
                 if(profit[x][y].second == 1){
-                    profitFound += profit[x][y].first;
+                    currentProfit += profit[x][y].first;
                 }
             }
         }
     } else {
-        profitFound = INT_MIN;
+        currentProfit = INT_MIN;
     }
 
-    return make_pair(profitFound, new_position);
+    return make_pair(currentProfit, newPosition);
 }
 
 //Print help menu
