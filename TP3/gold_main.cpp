@@ -101,7 +101,7 @@ void verifyCondition(vector<vector<pair<int, int>>>& profit, Position newPositio
         currentPath.push_back(positionsToVerify[i]);
 }
 
-pair<int64_t, Position> algorithm(vector<vector<pair<int, int>>>& profit, Position newPosition) {
+pair<int64_t, Position> getBlock(vector<vector<pair<int, int>>>& profit, Position newPosition) {
     int64_t currentProfit = 0;
 
     newPosition = findMaxNeighbour(profit, newPosition);
@@ -241,7 +241,7 @@ int main(int argc, char* argv[])
     int nbrOfIteration = 0;
 
     while (currentProfit != INT64_MIN) {
-        result = algorithm(profit, newPosition);
+        result = getBlock(profit, newPosition);
         currentProfit = result.first;
         newPosition = result.second;
 
