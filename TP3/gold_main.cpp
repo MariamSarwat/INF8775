@@ -116,7 +116,7 @@ int64_t getCurrentProfit(vector<vector<pair<int, int>>> profit, vector<Position>
 }
 
 pair<int64_t, Position> getBlock(vector<vector<pair<int, int>>>& profit, vector<Position>& currentPath, Position newPosition) {
-    int64_t currentProfit = 0;
+    int64_t currentProfit = INT64_MIN;
 
     newPosition = findMaxNeighbour(profit, newPosition);
 
@@ -125,17 +125,15 @@ pair<int64_t, Position> getBlock(vector<vector<pair<int, int>>>& profit, vector<
         
         verifyCondition(profit, currentPath, newPosition);
         currentProfit = getCurrentProfit(profit, currentPath);
-    } else {
-        currentProfit = INT64_MIN;
     }
 
     return make_pair(currentProfit, newPosition);
 }
 
 //Print help menu
-static void showUsage(std::string name)
+static void showUsage(std::string execName)
 {
-    std::cerr << "Usage: " << name << " -e CHEMIN_EXEMPLAIRE" << std::endl;
+    std::cerr << "Usage: " << execName << " -e CHEMIN_EXEMPLAIRE" << std::endl;
 }
 
 //Read File
