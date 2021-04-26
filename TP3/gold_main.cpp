@@ -15,8 +15,6 @@ struct Position {
 int NBR_ROWS = 0;
 int NBR_COLUMNS = 0;
 
-vector<Position> currentPath;
-
 //Regarde les voisins autour et trouve le max et retourne sa position
 Position findMaxNeighbour(vector<vector<pair<int, int>>> profit, Position currentPosition) {
     Position newPosition = {0, 0};
@@ -62,13 +60,17 @@ Position findMaxNeighbour(vector<vector<pair<int, int>>> profit, Position curren
     return newPosition;
 }
 
-void verifyCondition(vector<vector<pair<int, int>>>& profit, Position newPosition) {
+void verifyCondition(vector<vector<pair<int, int>>>& profit, vector<Position>& currentPath, Position newPosition) {
     vector<Position> positionsToVerify;
+    vector<Position> tempPath;
     positionsToVerify.push_back(newPosition);
+    tempPath.push_back(newPosition);
 
-    for (int i = 0; i < positionsToVerify.size(); i++) {
-        Position pos = positionsToVerify[i];
+
+    while (positionsToVerify.size() > 0) {
         Position newPosition;
+        Position pos = positionsToVerify.at(0);
+        positionsToVerify.erase(positionsToVerify.begin());
 
         int row_min = 0;
         if (pos.row != 0) {
@@ -83,25 +85,28 @@ void verifyCondition(vector<vector<pair<int, int>>>& profit, Position newPositio
             profit[row_min][column_max].second = 1;
             newPosition = {row_min, column_max};
             positionsToVerify.push_back(newPosition);
+            tempPath.push_back(newPosition);
         }
 
         if (profit[row_min][pos.column].second == 0) {
             profit[row_min][pos.column].second = 1;
             newPosition = {row_min, pos.column};
             positionsToVerify.push_back(newPosition);
+            tempPath.push_back(newPosition);
         }
         
         if (profit[row_min][column_min].second == 0) { 
             profit[row_min][column_min].second = 1;
             newPosition = {row_min, column_min};
             positionsToVerify.push_back(newPosition);
+            tempPath.push_back(newPosition);
         }
     }
-    for(int i = positionsToVerify.size() - 1; i >= 0; i--)
-        currentPath.push_back(positionsToVerify[i]);
+    for(int i = tempPath.size() - 1; i >= 0; i--)
+        currentPath.push_back(tempPath[i]);
 }
 
-pair<int64_t, Position> getBlock(vector<vector<pair<int, int>>>& profit, Position newPosition) {
+pair<int64_t, Position> getBlock(vector<vector<pair<int, int>>>& profit, vector<Position>& currentPath, Position newPosition) {
     int64_t currentProfit = 0;
 
     newPosition = findMaxNeighbour(profit, newPosition);
@@ -109,7 +114,7 @@ pair<int64_t, Position> getBlock(vector<vector<pair<int, int>>>& profit, Positio
     if (newPosition.row != INT_MIN && newPosition.column != INT_MIN) {
         profit[newPosition.row][newPosition.column].second = 1;
         
-        verifyCondition(profit, newPosition);
+        verifyCondition(profit, currentPath, newPosition);
 
         for (int i = 0; i < currentPath.size(); i++) {
             currentProfit += profit[currentPath[i].row][currentPath[i].column].first;
@@ -222,10 +227,11 @@ int main(int argc, char* argv[])
 
     int64_t currentMaxProfit = 0;
     int64_t currentProfit = 0;
-    int maxElement = 0;
+    int maxElement = INT_MIN;
 
     Position newPosition = {0, 0};
     vector<Position> currentMaxPath;
+    vector<Position> currentPath;
 
     for (int y = 0; y < NBR_COLUMNS; y++) {
         if (profit[0][y].first > maxElement) {
@@ -238,10 +244,9 @@ int main(int argc, char* argv[])
 
     pair<int64_t, Position> result;
     bool printNewMax = true;
-    int nbrOfIteration = 0;
 
     while (currentProfit != INT64_MIN) {
-        result = getBlock(profit, newPosition);
+        result = getBlock(profit, currentPath, newPosition);
         currentProfit = result.first;
         newPosition = result.second;
 
@@ -252,7 +257,7 @@ int main(int argc, char* argv[])
                 currentMaxPath.push_back(currentPath[i]);
             }
 
-            if(printNewMax || nbrOfIteration%200 == 0){
+            if(printNewMax){
                 printPath(currentMaxPath);
                 printNewMax = false;
             }
@@ -260,7 +265,6 @@ int main(int argc, char* argv[])
         else {
             printNewMax = true;
         }
-        nbrOfIteration++;
     }
     
     printPath(currentMaxPath);
