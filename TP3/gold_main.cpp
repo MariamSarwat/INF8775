@@ -130,6 +130,21 @@ pair<int64_t, Position> getBlock(vector<vector<pair<int, int>>>& profit, vector<
     return make_pair(currentProfit, newPosition);
 }
 
+Position getStartingBlock(vector<vector<pair<int, int>>>& profit, vector<Position>& currentPath){
+    int maxElement = INT_MIN;
+    Position newPosition = {0, 0};
+
+    for (int y = 0; y < NBR_COLUMNS; y++) {
+        if (profit[0][y].first > maxElement) {
+            maxElement = profit[0][y].first;
+            newPosition = {0, y};
+        }
+    }
+    profit[newPosition.row][newPosition.column].second = 1;
+    currentPath.push_back(newPosition);
+
+    return newPosition;
+}
 //Print help menu
 static void showUsage(std::string execName)
 {
@@ -217,6 +232,12 @@ void printPath(vector<Position> path){
     std::cout << endl;
 }
 
+void setMaxPath(vector<Position> currentPath, vector<Position>& currentMaxPath){
+    for (int i = currentMaxPath.size(); i < currentPath.size(); i++) {
+        currentMaxPath.push_back(currentPath[i]);
+    }
+}
+
 // Main function
 int main(int argc, char* argv[])
 {
@@ -226,40 +247,27 @@ int main(int argc, char* argv[])
     }
 
     std::string filePath = argv[2];
-
     vector<vector<pair<int,int>>> profit = readExempFile(filePath);
 
     int64_t currentMaxProfit = 0;
     int64_t currentProfit = 0;
-    int maxElement = INT_MIN;
 
-    Position newPosition = {0, 0};
     vector<Position> currentMaxPath;
     vector<Position> currentPath;
-
-    for (int y = 0; y < NBR_COLUMNS; y++) {
-        if (profit[0][y].first > maxElement) {
-            maxElement = profit[0][y].first;
-            newPosition = {0, y};
-        }
-    }
-    profit[newPosition.row][newPosition.column].second = 1;
-    currentPath.push_back(newPosition);
 
     pair<int64_t, Position> result;
     bool printNewMax = true;
 
+    Position currentPosition = getStartingBlock(profit, currentPath);
+    
     while (currentProfit != INT64_MIN) {
-        result = getBlock(profit, currentPath, newPosition);
+        result = getBlock(profit, currentPath, currentPosition);
         currentProfit = result.first;
-        newPosition = result.second;
+        currentPosition = result.second;
 
         if(currentProfit > currentMaxProfit) {
             currentMaxProfit = currentProfit;
-            
-            for (int i = currentMaxPath.size(); i < currentPath.size(); i++) {
-                currentMaxPath.push_back(currentPath[i]);
-            }
+            setMaxPath(currentPath, currentMaxPath);
 
             if(printNewMax){
                 printPath(currentMaxPath);
