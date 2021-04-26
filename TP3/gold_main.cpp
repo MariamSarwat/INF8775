@@ -3,7 +3,7 @@
 #include <math.h>
 #include <string>
 #include <vector>
-#include <bits\stdc++.h>
+#include <climits>
 
 using namespace std;
 
@@ -15,7 +15,7 @@ struct Position {
 int NBR_ROWS = 0;
 int NBR_COLUMNS = 0;
 
-vector<Position> listPos;
+vector<Position> currentPath;
 
 //Regarde les voisins autour et trouve le max et retourne sa position
 Position findMaxNeighbour(vector<vector<pair<int, int>>> profit, Position currentPosition) {
@@ -98,11 +98,11 @@ void verifyCondition(vector<vector<pair<int, int>>>& profit, Position newPositio
         }
     }
     for(int i = positionsToVerify.size() - 1; i >= 0; i--)
-        listPos.push_back(positionsToVerify[i]);
+        currentPath.push_back(positionsToVerify[i]);
 }
 
-pair<int, Position> algorithm(vector<vector<pair<int, int>>>& profit, Position newPosition) {
-    int currentProfit = 0;
+pair<int64_t, Position> algorithm(vector<vector<pair<int, int>>>& profit, Position newPosition) {
+    int64_t currentProfit = 0;
 
     newPosition = findMaxNeighbour(profit, newPosition);
 
@@ -111,16 +111,11 @@ pair<int, Position> algorithm(vector<vector<pair<int, int>>>& profit, Position n
         
         verifyCondition(profit, newPosition);
 
-        for(int x = 0; x < NBR_ROWS; x++){
-            for (int y = 0; y < NBR_COLUMNS; y++)
-            {
-                if(profit[x][y].second == 1){
-                    currentProfit += profit[x][y].first;
-                }
-            }
+        for (int i = 0; i < currentPath.size(); i++) {
+            currentProfit += profit[currentPath[i].row][currentPath[i].column].first;
         }
     } else {
-        currentProfit = INT_MIN;
+        currentProfit = INT64_MIN;
     }
 
     return make_pair(currentProfit, newPosition);
@@ -129,11 +124,7 @@ pair<int, Position> algorithm(vector<vector<pair<int, int>>>& profit, Position n
 //Print help menu
 static void showUsage(std::string name)
 {
-    std::cerr << "Usage: " << name << " -e CHEMIN_EXEMPLAIRE [-p] [-t]"
-        << "Parametre optionel :\n"
-        << "\t[-p] affiche dans l’ordre, sur chaque ligne, les indices des villes à visiter en commençant par 0 et en finissant par 0, sans texte superflu. Rapportez le chemin tel que la deuxième ville visitée ait un indice inférieur à celui de l’avant dernière ville affichée.\n"
-        << "\t[-t] affiche le temps d’exécution en millisecondes, sans unité ni texte superflu\n"
-        << std::endl;
+    std::cerr << "Usage: " << name << " -e CHEMIN_EXEMPLAIRE" << std::endl;
 }
 
 //Read File
@@ -210,9 +201,9 @@ vector<vector<pair<int,int>>> readExempFile(std::string filePath)
     return profit;
 }
 
-void printPath(){
-    for(int i = 0; i < listPos.size(); i++) {
-        std::cout << listPos[i].row << " " << listPos[i].column << endl;
+void printPath(vector<Position> path){
+    for(int i = 0; i < path.size(); i++) {
+        std::cout << path[i].row << " " << path[i].column << endl;
     }
     std::cout << endl;
 }
@@ -229,11 +220,12 @@ int main(int argc, char* argv[])
 
     vector<vector<pair<int,int>>> profit = readExempFile(filePath);
 
-    int currentMaxProfit = 0;
-    int currentProfit = 0;
+    int64_t currentMaxProfit = 0;
+    int64_t currentProfit = 0;
     int maxElement = 0;
 
     Position newPosition = {0, 0};
+    vector<Position> currentMaxPath;
 
     for (int y = 0; y < NBR_COLUMNS; y++) {
         if (profit[0][y].first > maxElement) {
@@ -242,30 +234,36 @@ int main(int argc, char* argv[])
         }
     }
     profit[newPosition.row][newPosition.column].second = 1;
-    listPos.push_back(newPosition);
+    currentPath.push_back(newPosition);
 
-    pair<int, Position> result;
-    int iteration = 1;
+    pair<int64_t, Position> result;
+    bool printNewMax = true;
+    int nbrOfIteration = 0;
 
-    while (currentProfit != INT_MIN) {
+    while (currentProfit != INT64_MIN) {
         result = algorithm(profit, newPosition);
         currentProfit = result.first;
         newPosition = result.second;
 
         if(currentProfit > currentMaxProfit) {
             currentMaxProfit = currentProfit;
-            if(iteration > 0){
-                printPath();
-                iteration = 0;
+            
+            for (int i = currentMaxPath.size(); i < currentPath.size(); i++) {
+                currentMaxPath.push_back(currentPath[i]);
+            }
+
+            if(printNewMax || nbrOfIteration%200 == 0){
+                printPath(currentMaxPath);
+                printNewMax = false;
             }
         } 
         else {
-            iteration ++;
+            printNewMax = true;
         }
+        nbrOfIteration++;
     }
     
-    std::cout << "Final Profit " << currentMaxProfit << endl;
-    printPath();
+    printPath(currentMaxPath);
 
     return 0;
 }
