@@ -66,9 +66,9 @@ void verifyCondition(vector<vector<pair<int, int>>>& profit, vector<Position>& c
     positionsToVerify.push_back(newPosition);
     tempPath.push_back(newPosition);
 
-
     while (positionsToVerify.size() > 0) {
         Position newPosition;
+        
         Position pos = positionsToVerify.at(0);
         positionsToVerify.erase(positionsToVerify.begin());
 
@@ -102,8 +102,17 @@ void verifyCondition(vector<vector<pair<int, int>>>& profit, vector<Position>& c
             tempPath.push_back(newPosition);
         }
     }
+
     for(int i = tempPath.size() - 1; i >= 0; i--)
         currentPath.push_back(tempPath[i]);
+}
+
+int64_t getCurrentProfit(vector<vector<pair<int, int>>> profit, vector<Position> path) {
+    int64_t currentProfit = 0;
+    for (int i = 0; i < path.size(); i++) {
+        currentProfit += profit[path[i].row][path[i].column].first;
+    }
+    return currentProfit;
 }
 
 pair<int64_t, Position> getBlock(vector<vector<pair<int, int>>>& profit, vector<Position>& currentPath, Position newPosition) {
@@ -115,10 +124,7 @@ pair<int64_t, Position> getBlock(vector<vector<pair<int, int>>>& profit, vector<
         profit[newPosition.row][newPosition.column].second = 1;
         
         verifyCondition(profit, currentPath, newPosition);
-
-        for (int i = 0; i < currentPath.size(); i++) {
-            currentProfit += profit[currentPath[i].row][currentPath[i].column].first;
-        }
+        currentProfit = getCurrentProfit(profit, currentPath);
     } else {
         currentProfit = INT64_MIN;
     }
