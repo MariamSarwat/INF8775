@@ -15,9 +15,11 @@ struct Position {
 
 int NBR_ROWS = 0;
 int NBR_COLUMNS = 0;
-const int MIN_PRINT_INTERVAL = 4;
+const int MIN_PRINT_INTERVAL = 3;
 
-//Regarde les voisins autour et trouve le max et retourne sa position
+//Regarde les voisins autour et trouve le max et retourne sa position. 
+//Si un voisin maximale et positif n'est pas retrouvé, une nouvelle voisinnage sera visité (case maximale qui n'a pas encore été déterré).
+//Si encore une fois, aucun case est retourné, il reste seulement des cases de profit négative (on retourne une condition d'arrêt).
 Position findMaxNeighbour(vector<vector<pair<int, int>>> profit, Position currentPosition) {
     Position newPosition = {0, 0};
     int row = currentPosition.row;
@@ -62,6 +64,9 @@ Position findMaxNeighbour(vector<vector<pair<int, int>>> profit, Position curren
     return newPosition;
 }
 
+//Selon la case choisis avec findMaxNeighbour, les conditions de déterrage seront vérifier. Si les cases nécessaire à déterrer newPosition 
+//ne sont pas encore visité, ces dernier seront déterrés.
+//Finalement, le path suivis sera ajouté au currentPath afin de pouvoir l'afficher.
 void verifyCondition(vector<vector<pair<int, int>>>& profit, vector<Position>& currentPath, Position newPosition) {
     vector<Position> positionsToVerify;
     vector<Position> tempPath;
@@ -109,6 +114,7 @@ void verifyCondition(vector<vector<pair<int, int>>>& profit, vector<Position>& c
         currentPath.push_back(tempPath[i]);
 }
 
+//Retourne le profit correspondant au path passé en paramètre.
 int64_t getCurrentProfit(vector<vector<pair<int, int>>> profit, vector<Position> path) {
     int64_t currentProfit = 0;
     for (int i = 0; i < path.size(); i++) {
@@ -117,6 +123,8 @@ int64_t getCurrentProfit(vector<vector<pair<int, int>>> profit, vector<Position>
     return currentProfit;
 }
 
+//Retrouve le newPosition à déterrer et, si une position valide est retournée, les conditions sont vérifier. 
+//Finalement, le profit correspondant au nouveau path est calculé et sera retourné à la fin.
 pair<int64_t, Position> getBlock(vector<vector<pair<int, int>>>& profit, vector<Position>& currentPath, Position newPosition) {
     int64_t currentProfit = INT64_MIN;
 
@@ -132,6 +140,8 @@ pair<int64_t, Position> getBlock(vector<vector<pair<int, int>>>& profit, vector<
     return make_pair(currentProfit, newPosition);
 }
 
+//Permet d'aller chercher la case de début, soit la case ayant le plus grand profit de la première ligne de la matrice.
+//Ce point sera par la suite retourné par la méthode.
 Position getStartingBlock(vector<vector<pair<int, int>>>& profit, vector<Position>& currentPath){
     int maxElement = INT_MIN;
     Position newPosition = {0, 0};
@@ -147,13 +157,14 @@ Position getStartingBlock(vector<vector<pair<int, int>>>& profit, vector<Positio
 
     return newPosition;
 }
-//Print help menu
+
+//Affichage du menu aide
 static void showUsage(std::string execName)
 {
     std::cerr << "Usage: " << execName << " -e CHEMIN_EXEMPLAIRE" << std::endl;
 }
 
-//Read File
+//Lire fichier de l'exemplaire et initier les variables.
 vector<vector<pair<int,int>>> readExempFile(std::string filePath)
 {
     std::ifstream inputFileStream(filePath);
@@ -227,6 +238,7 @@ vector<vector<pair<int,int>>> readExempFile(std::string filePath)
     return profit;
 }
 
+//Affiche le chemin passé en paramètre selon l'énoncé.
 void printPath(vector<Position> path){
     string stringifiedPath = "";
     for(int i = 0; i < path.size(); i++) {
@@ -236,6 +248,7 @@ void printPath(vector<Position> path){
     std::cout << stringifiedPath << endl;
 }
 
+//set le currentMaxPath.
 void setMaxPath(vector<Position> currentPath, vector<Position>& currentMaxPath){
     for (int i = currentMaxPath.size(); i < currentPath.size(); i++) {
         currentMaxPath.push_back(currentPath[i]);
@@ -255,19 +268,21 @@ int main(int argc, char* argv[])
 
     int64_t currentMaxProfit = 0;
     int64_t currentProfit = 0;
+    int64_t previousPrintedProfit = 0;
 
     vector<Position> currentMaxPath;
     vector<Position> currentPath;
 
-    int64_t previousPrintedProfit = 0;
-
     pair<int64_t, Position> result;
-    bool printNewMax = true;
 
+    //Retourne la case de début.
     Position currentPosition = getStartingBlock(profit, currentPath);
-    long start_time = chrono::system_clock::to_time_t(chrono::system_clock::now());
-    long previous_print_time;
 
+    //Initialise notre chronomètre de temps.
+    long previous_print_time = chrono::system_clock::to_time_t(chrono::system_clock::now());
+
+    //Tant qu'il reste des cases positive à déterrer. 
+    //INT64_MAX est retourné par getBlock lorsqu'il ne reste plus case avec un profit positif à déterrer.
     while (currentProfit != INT64_MIN) {
         result = getBlock(profit, currentPath, currentPosition);
         currentProfit = result.first;
@@ -288,6 +303,7 @@ int main(int argc, char* argv[])
         }
     }
     
+    //On affiche la solution maximale retrouvé avec l'algorithme s'il n'a pas été déjà affichée.
     if(currentMaxProfit != previousPrintedProfit)
        printPath(currentMaxPath);
 
