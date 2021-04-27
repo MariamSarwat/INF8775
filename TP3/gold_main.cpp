@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <climits>
+#include <chrono>
 
 using namespace std;
 
@@ -226,10 +227,13 @@ vector<vector<pair<int,int>>> readExempFile(std::string filePath)
 }
 
 void printPath(vector<Position> path){
+    string stringifyPath = "";
     for(int i = 0; i < path.size(); i++) {
-        std::cout << path[i].row << " " << path[i].column << endl;
+        string temp = to_string(path[i].row) + ' ' + to_string(path[i].column) + '\n';
+        stringifyPath = stringifyPath + temp;
+        //std::cout << path[i].row << " " << path[i].column << endl;
     }
-    std::cout << endl;
+    std::cout << stringifyPath << endl;
 }
 
 void setMaxPath(vector<Position> currentPath, vector<Position>& currentMaxPath){
@@ -255,11 +259,16 @@ int main(int argc, char* argv[])
     vector<Position> currentMaxPath;
     vector<Position> currentPath;
 
+    vector<Position> previousPrintedPath;
+    int64_t previousPrintedProfit = 0;
+
     pair<int64_t, Position> result;
     bool printNewMax = true;
 
     Position currentPosition = getStartingBlock(profit, currentPath);
-    
+    long start_time = chrono::system_clock::to_time_t(chrono::system_clock::now());
+    long previous_print_time;
+
     while (currentProfit != INT64_MIN) {
         result = getBlock(profit, currentPath, currentPosition);
         currentProfit = result.first;
@@ -268,18 +277,19 @@ int main(int argc, char* argv[])
         if(currentProfit > currentMaxProfit) {
             currentMaxProfit = currentProfit;
             setMaxPath(currentPath, currentMaxPath);
-
-            if(printNewMax){
-                printPath(currentMaxPath);
-                printNewMax = false;
-            }
         } 
-        else {
-            printNewMax = true;
+
+        long current_time = chrono::system_clock::to_time_t(chrono::system_clock::now());
+        long time_since_last_print = current_time - previous_print_time;
+        if (currentMaxProfit != previousPrintedProfit && time_since_last_print >= 7 && time_since_last_print <= 8){
+            printPath(currentMaxPath);
+            previous_print_time = chrono::system_clock::to_time_t(chrono::system_clock::now());
+            previousPrintedProfit = currentMaxProfit;
         }
     }
     
-    printPath(currentMaxPath);
+    if(currentMaxProfit != previousPrintedProfit)
+        printPath(currentMaxPath);
 
     return 0;
 }
