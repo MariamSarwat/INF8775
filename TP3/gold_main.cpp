@@ -15,6 +15,7 @@ struct Position {
 
 int NBR_ROWS = 0;
 int NBR_COLUMNS = 0;
+const int MIN_PRINT_INTERVAL = 4;
 
 //Regarde les voisins autour et trouve le max et retourne sa position
 Position findMaxNeighbour(vector<vector<pair<int, int>>> profit, Position currentPosition) {
@@ -227,13 +228,12 @@ vector<vector<pair<int,int>>> readExempFile(std::string filePath)
 }
 
 void printPath(vector<Position> path){
-    string stringifyPath = "";
+    string stringifiedPath = "";
     for(int i = 0; i < path.size(); i++) {
-        string temp = to_string(path[i].row) + ' ' + to_string(path[i].column) + '\n';
-        stringifyPath = stringifyPath + temp;
-        //std::cout << path[i].row << " " << path[i].column << endl;
+        string newPos = to_string(path[i].row) + ' ' + to_string(path[i].column) + '\n';
+        stringifiedPath = stringifiedPath + newPos;
     }
-    std::cout << stringifyPath << endl;
+    std::cout << stringifiedPath << endl;
 }
 
 void setMaxPath(vector<Position> currentPath, vector<Position>& currentMaxPath){
@@ -259,7 +259,6 @@ int main(int argc, char* argv[])
     vector<Position> currentMaxPath;
     vector<Position> currentPath;
 
-    vector<Position> previousPrintedPath;
     int64_t previousPrintedProfit = 0;
 
     pair<int64_t, Position> result;
@@ -281,7 +280,8 @@ int main(int argc, char* argv[])
 
         long current_time = chrono::system_clock::to_time_t(chrono::system_clock::now());
         long time_since_last_print = current_time - previous_print_time;
-        if (currentMaxProfit != previousPrintedProfit && time_since_last_print >= 7 && time_since_last_print <= 8){
+
+        if (currentMaxProfit != previousPrintedProfit && time_since_last_print >= MIN_PRINT_INTERVAL){
             printPath(currentMaxPath);
             previous_print_time = chrono::system_clock::to_time_t(chrono::system_clock::now());
             previousPrintedProfit = currentMaxProfit;
@@ -289,7 +289,7 @@ int main(int argc, char* argv[])
     }
     
     if(currentMaxProfit != previousPrintedProfit)
-        printPath(currentMaxPath);
+       printPath(currentMaxPath);
 
     return 0;
 }
