@@ -15,7 +15,7 @@ struct Position {
 
 int NBR_ROWS = 0;
 int NBR_COLUMNS = 0;
-const int MIN_PRINT_INTERVAL = 3;
+const int MIN_PRINT_INTERVAL = 7;
 
 //Regarde les voisins autour et trouve le max et retourne sa position. 
 //Si un voisin maximale et positif n'est pas retrouvé, une nouvelle voisinnage sera visité (case maximale qui n'a pas encore été déterré).
